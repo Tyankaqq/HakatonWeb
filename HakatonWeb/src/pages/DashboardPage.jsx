@@ -1,6 +1,6 @@
 import React from 'react';
 import TotalInformation from "../components/TotalInformation.jsx";
-import '../css/DashboardPage.css'
+import '../css/DashBoardPage/DashboardPage.css'
 
 function DashboardPage() {
     return (

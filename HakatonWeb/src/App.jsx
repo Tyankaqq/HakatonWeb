@@ -6,6 +6,7 @@ import TasksPage from "./pages/TasksPage.jsx";
 import ExecutorsPage from "./pages/ExecutorsPage.jsx";
 import QueuePage from "./pages/QueuePage.jsx";
 import BalancerPage from "./pages/BalancerPage.jsx";
+import ParametrsPage from "./pages/ParametrsPage.jsx";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/executors" element={<ExecutorsPage />} />
                 <Route path="/queues" element={<QueuePage />} />
                 <Route path="/balancer" element={<BalancerPage />} />
+                <Route path="/parametrs" element={<ParametrsPage />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
         </BrowserRouter>
