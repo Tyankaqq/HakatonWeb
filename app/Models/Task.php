@@ -10,8 +10,12 @@ class Task extends Model
         'parameters'
     ];
 
+    public $timestamps = true;
+
     protected $casts = [
         'parameters' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     public function getParameter(string $key, mixed $default = null): mixed
