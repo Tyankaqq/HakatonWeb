@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from '../../css/TasksToolbar.module.css';
+import styles from '../../css/TaskPage/TasksToolbar.module.css';
 
-const Dropdown = ({ options, value, onChange }) => {
+const Dropdown = ({ options, value, onChange, placeholder }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -28,6 +28,7 @@ const Dropdown = ({ options, value, onChange }) => {
             <button
                 className={styles.dropdownButton}
                 onClick={() => setIsOpen(!isOpen)}
+                type="button"
             >
                 {selectedOption.label}
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -40,6 +41,7 @@ const Dropdown = ({ options, value, onChange }) => {
                     {options.map((option) => (
                         <button
                             key={option.value}
+                            type="button"
                             className={`${styles.dropdownItem} ${option.value === value ? styles.active : ''}`}
                             onClick={() => handleSelect(option.value)}
                         >

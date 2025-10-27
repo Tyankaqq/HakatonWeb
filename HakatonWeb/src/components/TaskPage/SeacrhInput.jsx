@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../css/TasksToolbar.module.css';
+import styles from '../../css/TaskPage/TasksToolbar.module.css';
 
 const SearchInput = ({ value, onChange, placeholder }) => {
     return (

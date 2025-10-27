@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import TasksToolbar from '../components/TaskPage/TasksToolBar.jsx';
+import TasksToolbar from '../components/TaskPage/TasksToolbar';
 import TasksTable from '../components/TaskPage/TasksTable';
+import CreateTaskModal from '../components/TaskPage/CreateTaskModal';
 import { getTasks } from '../data/mockData';
-import styles from '../css/TasksPage.module.css';
+import styles from '../css/TaskPage/TasksPage.module.css';
 
 const TasksPage = () => {
     const [tasks, setTasks] = useState([]);
     const [filteredTasks, setFilteredTasks] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('');
     const [loading, setLoading] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         loadTasks();
@@ -18,41 +19,42 @@ const TasksPage = () => {
 
     useEffect(() => {
         filterTasks();
-    }, [searchQuery, statusFilter, priorityFilter, tasks]);
+    }, [searchQuery, priorityFilter, tasks]);
 
     const loadTasks = async () => {
         setLoading(true);
         try {
             const data = await getTasks();
-            setTasks(data);
-            setFilteredTasks(data);
+            setTasks(data || []);
+            setFilteredTasks(data || []);
         } catch (error) {
             console.error('Error loading tasks:', error);
+            setTasks([]);
+            setFilteredTasks([]);
         } finally {
             setLoading(false);
         }
     };
 
     const filterTasks = () => {
+        if (!tasks || tasks.length === 0) {
+            setFilteredTasks([]);
+            return;
+        }
+
         let filtered = [...tasks];
 
-        // Поиск по всем полям
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(task =>
-                task.id.toLowerCase().includes(query) ||
-                task.title.toLowerCase().includes(query) ||
-                task.description.toLowerCase().includes(query) ||
-                task.assignee.toLowerCase().includes(query)
+                task.task_id?.toLowerCase().includes(query) ||
+                task.title?.toLowerCase().includes(query) ||
+                task.description?.toLowerCase().includes(query) ||
+                task.user_id?.toLowerCase().includes(query) ||
+                task.parameters?.some(param => param.toLowerCase().includes(query))
             );
         }
 
-        // Фильтр по статусу
-        if (statusFilter) {
-            filtered = filtered.filter(task => task.status === statusFilter);
-        }
-
-        // Фильтр по приоритету
         if (priorityFilter) {
             filtered = filtered.filter(task => task.priority === priorityFilter);
         }
@@ -60,12 +62,24 @@ const TasksPage = () => {
         setFilteredTasks(filtered);
     };
 
-    const handleExport = () => {
-        console.log('Export to Excel');
+    const handleCreateTask = (formData) => {
+        const newTask = {
+            task_id: `TSK-${Math.floor(Math.random() * 10000)}`,
+            title: formData.title,
+            description: formData.description,
+            priority: formData.priority,
+            user_id: 'Не назначен',
+            parameters: [],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        setTasks([newTask, ...tasks]);
+        setModalOpen(false);
     };
 
-    const handleCreateTask = () => {
-        console.log('Create new task');
+    const handleExport = () => {
+        console.log('Export to Excel');
     };
 
     return (
@@ -75,17 +89,21 @@ const TasksPage = () => {
             <TasksToolbar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
                 priorityFilter={priorityFilter}
                 setPriorityFilter={setPriorityFilter}
                 onExport={handleExport}
-                onCreateTask={handleCreateTask}
+                onCreateTask={() => setModalOpen(true)}
             />
 
             <TasksTable
                 tasks={filteredTasks}
                 loading={loading}
+            />
+
+            <CreateTaskModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={handleCreateTask}
             />
         </div>
     );

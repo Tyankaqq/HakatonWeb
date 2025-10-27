@@ -1,31 +1,21 @@
 import React from 'react';
 import SearchInput from './SeacrhInput.jsx';
 import Dropdown from './Dropdown';
-import styles from '../../css/TasksToolbar.module.css';
+import styles from '../../css/TaskPage/TasksToolbar.module.css';
 
 const TasksToolbar = ({
                           searchQuery,
                           setSearchQuery,
-                          statusFilter,
-                          setStatusFilter,
                           priorityFilter,
                           setPriorityFilter,
                           onExport,
                           onCreateTask
                       }) => {
-    const statusOptions = [
-        { value: '', label: 'Все статусы' },
-        { value: 'Высокий', label: 'Высокий' },
-        { value: 'Средний', label: 'Средний' },
-        { value: 'Низкий', label: 'Низкий' }
-    ];
-
     const priorityOptions = [
         { value: '', label: 'Все приоритеты' },
-        { value: 'High Priority', label: 'High Priority' },
-        { value: 'Medium Priority', label: 'Medium Priority' },
-        { value: 'Low Priority', label: 'Low Priority' },
-        { value: 'Integration Tasks', label: 'Integration Tasks' }
+        { value: 'high', label: 'Высокий' },
+        { value: 'medium', label: 'Средний' },
+        { value: 'low', label: 'Низкий' }
     ];
 
     return (
@@ -37,15 +27,10 @@ const TasksToolbar = ({
             />
 
             <Dropdown
-                options={statusOptions}
-                value={statusFilter}
-                onChange={setStatusFilter}
-            />
-
-            <Dropdown
                 options={priorityOptions}
                 value={priorityFilter}
                 onChange={setPriorityFilter}
+                placeholder="Все приоритеты"
             />
 
             <div className={styles.actions}>

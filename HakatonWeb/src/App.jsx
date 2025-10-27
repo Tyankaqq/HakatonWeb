@@ -6,10 +6,16 @@ import TasksPage from "./pages/TasksPage.jsx";
 import ExecutorsPage from "./pages/ExecutorsPage.jsx";
 import BalancerPage from "./pages/BalancerPage.jsx";
 import ParametrsPage from "./pages/ParametrsPage.jsx";
+import {useState} from "react";
+
+
 
 function App() {
+
     return (
+
         <BrowserRouter>
+
             <Header />
             <Routes>
                 <Route path="/balancer" element={<BalancerPage />} />

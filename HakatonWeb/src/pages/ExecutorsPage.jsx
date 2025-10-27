@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import StatsCard from '../components/ExecutorsPage/StatsCard';
 import PerformersTable from '../components/ExecutorsPage/PerformersTable';
+import AddExecutorModal from '../components/ExecutorsPage//AddExecutorModal';
 import SearchInput from '../components/ExecutorsPage/SearchInput';
 import { getPerformers, getStats } from '../data/performersData';
 import styles from '../css/ExecutorsPage/ExecutorsPage.module.css';
 
-const ExecutorsPage = () => {
+const ExecutorPage = () => {
     const [performers, setPerformers] = useState([]);
     const [filteredPerformers, setFilteredPerformers] = useState([]);
     const [stats, setStats] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -52,8 +54,39 @@ const ExecutorsPage = () => {
         setFilteredPerformers(filtered);
     };
 
-    const handleAddPerformer = () => {
-        console.log('Add new performer');
+    const handleAddPerformer = (formData) => {
+        const initials = formData.fullName
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+
+        const newPerformer = {
+            id: Date.now().toString(),
+            initials: initials,
+            name: formData.fullName,
+            email: formData.email,
+            role: formData.role,
+            status: 'Активен',
+            totalTasks: 0,
+            completed: 0,
+            inProgress: 0,
+            productivity: 0,
+            lastActivity: new Date(),
+            skills: formData.skills
+        };
+
+        setPerformers([...performers, newPerformer]);
+        setModalOpen(false);
+
+        if (stats) {
+            setStats({
+                ...stats,
+                totalPerformers: stats.totalPerformers + 1,
+                activeNow: stats.activeNow + 1
+            });
+        }
     };
 
     return (
@@ -97,7 +130,7 @@ const ExecutorsPage = () => {
                     onChange={setSearchQuery}
                     placeholder="Поиск исполнителя..."
                 />
-                <button className={styles.addButton} onClick={handleAddPerformer}>
+                <button className={styles.addButton} onClick={() => setModalOpen(true)}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
@@ -109,8 +142,14 @@ const ExecutorsPage = () => {
                 performers={filteredPerformers}
                 loading={loading}
             />
+
+            <AddExecutorModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSubmit={handleAddPerformer}
+            />
         </div>
     );
 };
 
-export default ExecutorsPage;
+export default ExecutorPage;

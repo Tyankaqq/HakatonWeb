@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-
-import styles from '../../css/TasksTable.module.css';
+import StatusBadge from './StatusBadge';
+import styles from '../../css/TaskPage/TasksTable.module.css';
 
 const TasksTable = ({ tasks, loading }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -13,12 +13,33 @@ const TasksTable = ({ tasks, loading }) => {
         setSortConfig({ key, direction });
     };
 
+    const getPriorityValue = (priority) => {
+        // Числовое значение для сортировки: low < medium < high
+        switch (priority) {
+            case 'low':
+                return 1;
+            case 'medium':
+                return 2;
+            case 'high':
+                return 3;
+            default:
+                return 0;
+        }
+    };
+
     const getSortedTasks = () => {
+        if (!tasks || tasks.length === 0) return [];
         if (!sortConfig.key) return tasks;
 
         return [...tasks].sort((a, b) => {
-            const aValue = a[sortConfig.key];
-            const bValue = b[sortConfig.key];
+            let aValue = a[sortConfig.key];
+            let bValue = b[sortConfig.key];
+
+            // Специальная обработка для приоритета
+            if (sortConfig.key === 'priority') {
+                aValue = getPriorityValue(aValue);
+                bValue = getPriorityValue(bValue);
+            }
 
             if (aValue < bValue) {
                 return sortConfig.direction === 'asc' ? -1 : 1;
@@ -31,6 +52,7 @@ const TasksTable = ({ tasks, loading }) => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '-';
         const date = new Date(dateString);
         return date.toLocaleString('ru-RU', {
             year: 'numeric',
@@ -61,26 +83,23 @@ const TasksTable = ({ tasks, loading }) => {
             <table className={styles.table}>
                 <thead>
                 <tr>
-                    <th onClick={() => handleSort('id')}>
-                        ID <SortIcon columnKey="id" />
+                    <th onClick={() => handleSort('task_id')}>
+                        ID <SortIcon columnKey="task_id" />
                     </th>
                     <th onClick={() => handleSort('title')}>
                         Название <SortIcon columnKey="title" />
                     </th>
-                    <th onClick={() => handleSort('assignee')}>
-                        Исполнитель <SortIcon columnKey="assignee" />
-                    </th>
-                    <th onClick={() => handleSort('status')}>
-                        Статус <SortIcon columnKey="status" />
+                    <th onClick={() => handleSort('user_id')}>
+                        Исполнитель <SortIcon columnKey="user_id" />
                     </th>
                     <th onClick={() => handleSort('priority')}>
                         Приоритет <SortIcon columnKey="priority" />
                     </th>
-                    <th onClick={() => handleSort('queue')}>
-                        Очередь <SortIcon columnKey="queue" />
+                    <th>
+                        Параметры
                     </th>
-                    <th onClick={() => handleSort('updatedAt')}>
-                        Обновлено <SortIcon columnKey="updatedAt" />
+                    <th onClick={() => handleSort('updated_at')}>
+                        Обновлено <SortIcon columnKey="updated_at" />
                     </th>
                     <th></th>
                 </tr>
@@ -88,23 +107,40 @@ const TasksTable = ({ tasks, loading }) => {
                 <tbody>
                 {sortedTasks.length === 0 ? (
                     <tr>
-                        <td colSpan="8" className={styles.empty}>
+                        <td colSpan="7" className={styles.empty}>
                             Задачи не найдены
                         </td>
                     </tr>
                 ) : (
                     sortedTasks.map((task) => (
-                        <tr key={task.id}>
-                            <td className={styles.idCell}>{task.id}</td>
+                        <tr key={task.task_id}>
+                            <td className={styles.idCell}>{task.task_id}</td>
                             <td className={styles.titleCell}>
                                 <div className={styles.taskTitle}>{task.title}</div>
-                                <div className={styles.taskDescription}>{task.description}</div>
+                                {task.description && (
+                                    <div className={styles.taskDescription}>{task.description}</div>
+                                )}
                             </td>
-                            <td>{task.assignee}</td>
-
-                            <td>{task.priority}</td>
-                            <td>{task.queue}</td>
-                            <td className={styles.dateCell}>{formatDate(task.updatedAt)}</td>
+                            <td>{task.user_id}</td>
+                            <td>
+                                <StatusBadge priority={task.priority} />
+                            </td>
+                            <td>
+                                <div className={styles.parametersCell}>
+                                    {task.parameters && task.parameters.length > 0 ? (
+                                        task.parameters.map((param, index) => (
+                                            <span key={index} className={styles.parameterTag}>
+                                                {param}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className={styles.noParameters}>-</span>
+                                    )}
+                                </div>
+                            </td>
+                            <td className={styles.dateCell}>
+                                {formatDate(task.updated_at)}
+                            </td>
                             <td className={styles.actionsCell}>
                                 <button className={styles.menuButton}>⋮</button>
                             </td>
