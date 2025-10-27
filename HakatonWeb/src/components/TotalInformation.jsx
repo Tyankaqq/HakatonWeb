@@ -1,5 +1,5 @@
 import React from 'react';
-import '../css/TotalInformation.css';
+import '../css/TotalInformationComponent/TotalInformation.css';
 
 function TotalInformation({
   title,
