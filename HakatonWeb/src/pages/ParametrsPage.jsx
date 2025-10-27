@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../css/TasksPage/ParametrsPage.css';
+import '../css/ParametrsPage/ParametrsPage.css';
 
 function ParametrsPage() {
     const initialParams = [

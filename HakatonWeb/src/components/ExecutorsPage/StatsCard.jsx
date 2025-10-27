@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../css/ExecutorsPage/StatsCard.module.css';
+import styles from '../../css/components/StatsCard.module.css';
 
 const StatsCard = ({ title, value, icon, iconColor }) => {
     const renderIcon = () => {

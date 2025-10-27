@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
 import ProgressBar from './ProgressBar';
-import styles from '../../css/ExecutorsPage/PerformersTable.module.css';
+import styles from '../../css/components/ExecutorsTable.module.css';
 
 const PerformersTable = ({ performers, loading }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
