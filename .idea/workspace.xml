@@ -4,29 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d0bf4e2f-f0aa-4832-9c69-9f4fff20ba5a" name="Changes" comment="preparing project for work&#10;&#10;added some components">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/api/fetchData.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/components/Header.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/components/TotalInformation.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/css/TotalInformation.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/css/header.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/css/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HakatonWeb/src/pages/HomePage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/untitled3.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/HakatonWeb/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/HakatonWeb/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/src/App.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/HakatonWeb/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/src/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/HakatonWeb/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/HakatonWeb/src/main.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
-    </list>
+    <list default="true" id="d0bf4e2f-f0aa-4832-9c69-9f4fff20ba5a" name="Changes" comment="preparing project for work&#10;&#10;added some components" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -69,22 +47,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/HakatonWeb/package.json" />
@@ -117,7 +96,17 @@
       <option name="presentableId" value="Default" />
       <updated>1761557246306</updated>
       <workItem from="1761557247464" duration="9074000" />
+      <workItem from="1761571210835" duration="331000" />
     </task>
+    <task id="LOCAL-00001" summary="preparing project for work&#10;&#10;added some components">
+      <option name="closed" value="true" />
+      <created>1761571269178</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1761571269178</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
