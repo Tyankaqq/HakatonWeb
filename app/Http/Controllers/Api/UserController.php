@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        return $this->userService->getUser($request);
+        return $this->userService->getUsers($request);
     }
 
     /**
@@ -60,38 +60,11 @@ class UserController extends Controller
     }
 
     /**
-     * Получить флаги пользователя
-     * GET /api/v1/users/{user}/flags
+     * Получить статистику пользователя
+     * GET /api/v1/users/{user}/stats
      */
-    public function getFlags(User $user): JsonResponse
+    public function stats(User $user): JsonResponse
     {
-        return $this->userService->getFlags($user);
-    }
-
-    /**
-     * Прикрепить флаг к пользователю
-     * POST /api/v1/users/{user}/flags
-     */
-    public function attachFlag(Request $request, User $user): JsonResponse
-    {
-        return $this->userService->attachFlag($request, $user);
-    }
-
-    /**
-     * Обновить значение флага
-     * PUT /api/v1/users/{user}/flags/{flag}
-     */
-    public function updateFlag(Request $request, User $user, int $flag): JsonResponse
-    {
-        return $this->userService->updateFlag($request, $user, $flag);
-    }
-
-    /**
-     * Открепить флаг от пользователя
-     * DELETE /api/v1/users/{user}/flags/{flag}
-     */
-    public function detachFlag(User $user, int $flag): JsonResponse
-    {
-        return $this->userService->detachFlag($user, $flag);
+        return $this->userService->getUserStats($user);
     }
 }
