@@ -1,9 +1,9 @@
-const BASE_URL = 'https://530a6d0b0eac.ngrok-free.app/api/v1';
+const BASE_URL = 'https://ea7cca192853.ngrok-free.app/api/v1';
 
 export async function fetchParameters() {
     const response = await fetch(`${BASE_URL}/parameters`);
     if (!response.ok) throw new Error('Ошибка загрузки параметров');
-    return response.json();
+    return response.data;
 }
 
 export async function createParameter(param) {
