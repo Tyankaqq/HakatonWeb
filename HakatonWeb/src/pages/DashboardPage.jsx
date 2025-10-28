@@ -56,7 +56,7 @@ const DashboardPage = () => {
 
             <div className="bottom-grid">
                 <TasksList title="Последние задачи" tasks={tasksData} />
-                <QueueStats title="Статус очередей" queues={queuesData} />
+
             </div>
         </div>
     );

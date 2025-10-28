@@ -109,18 +109,8 @@ const ExecutorPage = () => {
                         icon="activity"
                         iconColor="#10b981"
                     />
-                    <StatsCard
-                        title="Средняя загрузка"
-                        value={`${stats.avgLoad}%`}
-                        icon="gauge"
-                        iconColor="#f59e0b"
-                    />
-                    <StatsCard
-                        title="Завершено сегодня"
-                        value={stats.completedToday}
-                        icon="check"
-                        iconColor="#22c55e"
-                    />
+
+
                 </div>
             )}
 

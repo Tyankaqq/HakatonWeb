@@ -11,6 +11,101 @@
     z-index: 1000;
     animation: fadeIn 0.2s ease;
 }
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.parametersHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.addParameterButton {
+    padding: 0.5rem 1rem;
+    background: #4F46E5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.addParameterButton:hover {
+    background: #4338CA;
+}
+
+.parameterCard {
+    padding: 1rem;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.parameterGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    gap: 1rem;
+}
+
+.ValueParameterColumn {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.parameterColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.parameterLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.parameterSelect,
+.operatorSelect,
+.valueInput {
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.removeParameterButton {
+    padding: 0.5rem 1rem;
+    background: #FEE2E2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 0.25rem;
+}
+
+.removeParameterButton:hover {
+    background: #FEF2F2;
+    border-color: #FCA5A5;
+}
+
+.valueTextarea {
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-family: monospace;
+    resize: vertical;
+}
+
 
 @keyframes fadeIn {
     from {

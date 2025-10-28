@@ -76,18 +76,9 @@ const PerformersTable = ({ performers, loading }) => {
                     <th onClick={() => handleSort('totalTasks')}>
                         Всего задач <SortIcon columnKey="totalTasks" />
                     </th>
-                    <th onClick={() => handleSort('completed')}>
-                        Завершено <SortIcon columnKey="completed" />
-                    </th>
-                    <th onClick={() => handleSort('inProgress')}>
-                        В работе <SortIcon columnKey="inProgress" />
-                    </th>
-                    <th onClick={() => handleSort('productivity')}>
-                        Производительность <SortIcon columnKey="productivity" />
-                    </th>
-                    <th onClick={() => handleSort('lastActivity')}>
-                        Последняя активность <SortIcon columnKey="lastActivity" />
-                    </th>
+
+
+
                 </tr>
                 </thead>
                 <tbody>
@@ -113,34 +104,7 @@ const PerformersTable = ({ performers, loading }) => {
                                 <StatusIndicator status={performer.status} />
                             </td>
                             <td className={styles.numberCell}>{performer.totalTasks}</td>
-                            <td className={styles.numberCell}>
-                                <div className={styles.withIcon}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
-                                        <polyline points="20 6 9 17 4 12"/>
-                                    </svg>
-                                    {performer.completed}
-                                </div>
-                            </td>
-                            <td className={styles.numberCell}>
-                                <div className={styles.withIcon}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <polyline points="12 6 12 12 16 14"/>
-                                    </svg>
-                                    {performer.inProgress}
-                                </div>
-                            </td>
-                            <td>
-                                <div className={styles.progressCell}>
-                                    <ProgressBar
-                                        percentage={performer.productivity}
-                                        label={`${performer.productivity}%`}
-                                    />
-                                </div>
-                            </td>
-                            <td className={styles.timeCell}>
-                                {formatTimeAgo(performer.lastActivity)}
-                            </td>
+
                         </tr>
                     ))
                 )}

@@ -28,11 +28,6 @@ function Header() {
                         <span>Dashboard</span>
                     </NavLink>
 
-                    <NavLink to="/tasks" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                        <img src={TaskLogo} alt="tasks" />
-
-                        <span>Задачи</span>
-                    </NavLink>
 
                     <NavLink to="/executors" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
                         <img src={ExecutorLogo} alt="executors" />

@@ -133,7 +133,7 @@ th {
 .status-active {
     color: #219653;
     background: #eafbe7;
-
+    padding: 8px;
     border-radius: 8px;
     font-size: 15px;
     font-weight: 500;
@@ -141,7 +141,7 @@ th {
 .status-inactive {
     color: #a82c2c;
     background: #fdeaea;
-
+    padding: 8px;
     border-radius: 8px;
     font-size: 15px;
     font-weight: 500;
