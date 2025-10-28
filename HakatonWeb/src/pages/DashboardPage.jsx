@@ -32,12 +32,7 @@ const DashboardPage = () => {
         { id: 'TSK-4717', title: 'Обновление данных через REST API', assignee: 'Морозов Д.А.', priority: 'medium', status: 'completed' }
     ];
 
-    const queuesData = [
-        { name: 'High Priority', count: 234, progress: 78, color: '#ef4444' },
-        { name: 'Medium Priority', count: 567, progress: 56, color: '#3b82f6' },
-        { name: 'Low Priority', count: 892, progress: 34, color: '#94a3b8' },
-        { name: 'Integration Tasks', count: 145, progress: 67, color: '#8b5cf6' }
-    ];
+
 
     return (
         <div className="dashboard">

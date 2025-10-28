@@ -18,7 +18,7 @@ const ExecutorLoad = ({ executors }) => {
     };
 
     const getProgressWidth = (tasksCount) => {
-        return Math.min((tasksCount / 20) * 100, 100);
+        return Math.min((tasksCount / 10) * 100, 100);
     };
 
     return (

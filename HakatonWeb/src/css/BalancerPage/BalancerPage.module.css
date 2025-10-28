@@ -122,6 +122,12 @@
     line-height: 1.5;
     margin: 0;
 }
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #6B7280;
+    font-size: 1.125rem;
+}
 
 @media screen and (max-width: 1024px) {
     .mainGrid {
