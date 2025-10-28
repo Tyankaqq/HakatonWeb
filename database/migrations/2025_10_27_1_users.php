@@ -13,7 +13,9 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->boolean('status')->default(true);
+            $table->integer('daily_limit')->nullable(); // Суточный лимит задач
+            $table->integer('weight')->default(1); // Вес исполнителя (1-10)
         });
     }
 

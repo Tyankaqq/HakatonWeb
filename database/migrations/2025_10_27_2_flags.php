@@ -8,18 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('flags', function (Blueprint $table) {
+        Schema::create('parameters', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->enum('value_type', ['string', 'integer', 'boolean', 'array'])->default('string');
+            $table->enum('value_type', [
+                'string',
+                'integer',
+                'float',
+                'boolean',
+                'array',
+                'date',
+                'datetime',
+                'timestamp',
+                'json'
+            ])->default('string');
             $table->boolean('is_active')->default(true);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('flags');
+        Schema::dropIfExists('parameters');
     }
 };
