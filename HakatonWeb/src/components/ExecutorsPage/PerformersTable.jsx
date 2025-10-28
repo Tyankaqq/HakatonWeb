@@ -1,10 +1,10 @@
 // src/components/ExecutorsPage/PerformersTable.jsx
 import React, { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
-import ProgressBar from './ProgressBar';
 import styles from '../../css/components/ExecutorsTable.module.css';
-
-const PerformersTable = ({ performers, loading, onEdit }) => {
+import DeleteIcon from '../../assets/Image/DeleteIcon.svg';
+import EditLogo from '../../assets/Image/EditLogo.svg';
+const PerformersTable = ({ performers, loading, onEdit, onDelete }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const handleSort = (key) => {
@@ -38,17 +38,6 @@ const PerformersTable = ({ performers, loading, onEdit }) => {
         });
     };
 
-    const formatTimeAgo = (date) => {
-        const now = new Date();
-        const diff = Math.floor((now - new Date(date)) / 1000);
-
-        if (diff < 60) return `${diff} секунд назад`;
-        if (diff < 3600) return `${Math.floor(diff / 60)} минут назад`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)} часа назад`;
-        return `${Math.floor(diff / 86400)} дней назад`;
-    };
-
-    // Определить уровень по весу
     const getLevel = (weight) => {
         if (!weight) return 'Не указан';
         if (weight >= 1 && weight <= 3) return 'Junior';
@@ -57,7 +46,6 @@ const PerformersTable = ({ performers, loading, onEdit }) => {
         return 'Неизвестный';
     };
 
-    // Стили для бейджа уровня
     const getLevelBadgeStyle = (level) => {
         switch (level) {
             case 'Junior':
@@ -143,16 +131,22 @@ const PerformersTable = ({ performers, loading, onEdit }) => {
                                     </span>
                                 </td>
                                 <td>
-                                    <button
-                                        className={styles.editButton}
-                                        onClick={() => onEdit(performer.id)}
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                        </svg>
-                                        Редактировать
-                                    </button>
+                                    <div className={styles.actionsCell}>
+                                        <button
+                                            className={styles.editButton}
+                                            onClick={() => onEdit(performer.id)}
+                                            title="Редактировать"
+                                        >
+                                        <img src={EditLogo} width="24" height="24" />
+                                        </button>
+                                        <button
+                                            className={styles.deleteButton}
+                                            onClick={() => onDelete(performer.id, performer.name)}
+                                            title="Удалить"
+                                        >
+                                            <img src={DeleteIcon}  width="24" height="24" alt="" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         );

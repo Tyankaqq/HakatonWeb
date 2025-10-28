@@ -1,3 +1,5 @@
+/* src/css/ParametrsPage/ParametrsPage.css */
+
 .parameters-page {
     max-width: 1720px;
     margin: 0 auto;
@@ -11,6 +13,7 @@
     gap: 24px;
     margin-bottom: 16px;
 }
+
 .stats-card {
     flex: 1;
     background: #fff;
@@ -21,11 +24,13 @@
     align-items: flex-start;
     box-shadow: 0 1px 3px #ededed;
 }
+
 .stats-label {
     color: #aaa;
     font-size: 15px;
     margin-bottom: 6px;
 }
+
 .stats-value {
     font-weight: 600;
     font-size: 22px;
@@ -38,6 +43,7 @@
     align-items: center;
     margin-bottom: 18px;
 }
+
 .search-input {
     flex: 1;
     padding: 9px 14px;
@@ -46,6 +52,7 @@
     font-size: 16px;
     background: #fff;
 }
+
 .filter-select {
     padding: 8px 14px;
     border-radius: 8px;
@@ -53,6 +60,7 @@
     background: #fff;
     font-size: 15px;
 }
+
 .create-button {
     background: #030213;
     color: #fff;
@@ -64,6 +72,7 @@
     cursor: pointer;
     transition: background 0.2s;
 }
+
 .create-button:hover {
     background: #444;
 }
@@ -77,23 +86,27 @@ table {
     overflow: hidden;
     margin-bottom: 20px;
 }
+
 th, td {
     padding: 12px 14px;
     text-align: left;
     border-bottom: 1px solid #f3f3f3;
 }
-.description{
+
+.description {
     padding: 12px 14px;
     text-align: left;
     border-bottom: 1px solid #f3f3f3;
-    color : #717182;
+    color: #717182;
 }
+
 th {
     background: #f3f5fc;
     font-weight: 500;
     color: #484848;
 }
-.mini-tag-id{
+
+.mini-tag-id {
     display: inline-block;
     background: #f3f5fc;
     color: #333;
@@ -105,7 +118,8 @@ th {
     margin-right: 8px;
     margin-bottom: 4px;
 }
-.mini-tag-inactive{
+
+.mini-tag-inactive {
     display: inline-block;
     background: #f3f5fc;
     color: #717182;
@@ -117,6 +131,7 @@ th {
     margin-right: 8px;
     margin-bottom: 4px;
 }
+
 .mini-tag {
     display: inline-block;
     background: #f3f5fc;
@@ -138,6 +153,7 @@ th {
     font-size: 15px;
     font-weight: 500;
 }
+
 .status-inactive {
     color: #a82c2c;
     background: #fdeaea;
@@ -147,16 +163,60 @@ th {
     font-weight: 500;
 }
 
+/* Кнопки действий - БЕЗ БОРДЕРОВ */
+.edit-btn,
+.delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    outline: none;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+    opacity: 0.7;
+}
+
+.edit-btn:active,
+.delete-btn:active {
+    opacity: 0.5;
+}
+
+.edit-btn img,
+.delete-btn img {
+    display: block;
+    width: 30px;
+    height: 30px;
+}
+
+/* Глобальные стили для кнопок */
+button {
+    border: none;
+    outline: none;
+}
+
+button:focus {
+    outline: none;
+}
+
 .bottom-blocks {
     display: flex;
     gap: 48px;
     margin-top: 18px;
 }
+
 .bottom-label {
     font-weight: 500;
     margin-bottom: 24px;
     color: #444;
 }
+
 .bottom-tags {
     display: flex;
     flex-wrap: wrap;
@@ -166,13 +226,17 @@ th {
 
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(50,50,50,0.19);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(50, 50, 50, 0.19);
     z-index: 1111;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .modal-window {
     background: #fff;
     border-radius: 13px;
@@ -181,11 +245,13 @@ th {
     min-width: 340px;
     max-width: 95vw;
 }
+
 .modal-form {
     display: flex;
     flex-direction: column;
     gap: 13px;
 }
+
 .modal-form input,
 .modal-form select {
     font-size: 16px;
@@ -193,11 +259,13 @@ th {
     border: 1px solid #ececec;
     padding: 9px 13px;
 }
+
 .modal-actions {
     display: flex;
     gap: 12px;
     margin-top: 6px;
 }
+
 .cancel-btn {
     background: #e8e8e8;
     color: #333;
@@ -209,3 +277,6 @@ th {
     cursor: pointer;
 }
 
+.cancel-btn:hover {
+    background: #d8d8d8;
+}

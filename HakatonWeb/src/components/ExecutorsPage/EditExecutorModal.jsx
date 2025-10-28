@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../../css/ExecutorsPage/AddExecutorModal.module.css';
 import { fetchParameters } from '../../API/ParametrsAPI/ParametrsAPI.js';
+import { fetchUserById, updateUserComplete } from '../../API/ExecutorsAPI/ExecutorsAPI.js';
 
-const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
-
-const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
+const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId, showToast }) => {
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -13,15 +12,15 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
         status: true,
         daily_limit: 50,
         weight: 3,
-        parameters: []
     });
 
+    const [existingParameters, setExistingParameters] = useState([]);
+    const [newParameters, setNewParameters] = useState([]);
     const [errors, setErrors] = useState({});
     const [availableParameters, setAvailableParameters] = useState([]);
     const [loading, setLoading] = useState(false);
     const [executorLevel, setExecutorLevel] = useState('Junior');
-    const [newParameters, setNewParameters] = useState([]);
-    const [dataLoaded, setDataLoaded] = useState(false); // Флаг загрузки данных
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     useEffect(() => {
         if (isOpen && executorId) {
@@ -43,27 +42,17 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
         }
     }, [formData.weight]);
 
-    // Загружаем и параметры, и данные исполнителя одновременно
     const loadAllData = async () => {
         try {
             setLoading(true);
+            console.log('Загрузка данных для executorId:', executorId);
 
-            // Загружаем параллельно
-            const [executorResponse, parametersResponse] = await Promise.all([
-                fetch(`${BASE_URL}/users/${executorId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                }),
+            const [executorData, parametersResponse] = await Promise.all([
+                fetchUserById(executorId),
                 fetchParameters()
             ]);
 
-            if (!executorResponse.ok) throw new Error('Ошибка получения данных исполнителя');
-
-            const executorData = await executorResponse.json();
-            console.log('Executor data:', executorData);
+            console.log('Данные исполнителя от API:', executorData);
 
             let executor = null;
             if (executorData.success && executorData.data) {
@@ -72,22 +61,47 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                 executor = executorData;
             }
 
-            // Обработка параметров
+            let activeParams = [];
             if (parametersResponse.success && Array.isArray(parametersResponse.data)) {
-                const activeParams = parametersResponse.data.filter(p => p.is_active);
+                activeParams = parametersResponse.data.filter(p => p.is_active);
                 setAvailableParameters(activeParams);
             }
 
             if (executor) {
+                let formattedParameters = [];
+                if (Array.isArray(executor.parameters)) {
+                    formattedParameters = executor.parameters.map(param => {
+                        if (param.pivot) {
+                            return {
+                                id: param.id,
+                                parameter_id: param.pivot.parameter_id || param.id,
+                                key: param.key,
+                                value_type: param.value_type,
+                                value: param.pivot.value,
+                                comparison_operator: param.pivot.comparison_operator || '='
+                            };
+                        }
+                        return {
+                            id: param.id,
+                            parameter_id: param.parameter_id || param.id,
+                            key: param.key || '',
+                            value_type: param.value_type || 'string',
+                            value: param.value,
+                            comparison_operator: param.comparison_operator || '='
+                        };
+                    });
+                }
+
                 setFormData({
                     first_name: executor.first_name || '',
                     last_name: executor.last_name || '',
                     middle_name: executor.middle_name || '',
-                    status: executor.status || false,
+                    status: executor.status !== undefined ? executor.status : true,
                     daily_limit: executor.daily_limit || 50,
                     weight: executor.weight || 3,
-                    parameters: executor.parameters || []
                 });
+
+                setExistingParameters(formattedParameters);
                 setNewParameters([]);
             }
 
@@ -95,13 +109,19 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
             setLoading(false);
         } catch (error) {
             console.error('Ошибка загрузки данных:', error);
+            if (showToast) {
+                showToast(`Ошибка загрузки данных: ${error.message}`, 'error');
+            }
             setLoading(false);
             setDataLoaded(true);
         }
     };
 
     const renderValueInput = (param, index, isNew = false) => {
-        const selectedParameter = availableParameters.find(p => p.id === param.parameter_id);
+        const selectedParameter = isNew
+            ? availableParameters.find(p => p.id === param.parameter_id)
+            : { value_type: param.value_type };
+
         const valueType = selectedParameter?.value_type || 'string';
 
         const commonProps = {
@@ -149,8 +169,8 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                 status: true,
                 daily_limit: 50,
                 weight: 3,
-                parameters: []
             });
+            setExistingParameters([]);
             setNewParameters([]);
             setErrors({});
             setExecutorLevel('Junior');
@@ -184,37 +204,53 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            if (showToast) {
+                showToast('Проверьте заполнение всех обязательных полей', 'error');
+            }
+            return;
+        }
 
         try {
             setLoading(true);
 
-            const allParameters = [...formData.parameters, ...newParameters];
+            const allParameters = [
+                ...existingParameters.map(p => ({
+                    parameter_id: p.parameter_id,
+                    value: p.value,
+                    comparison_operator: p.comparison_operator
+                })),
+                ...newParameters.map(p => ({
+                    parameter_id: p.parameter_id,
+                    value: p.value.toString(),
+                    comparison_operator: p.comparison_operator
+                }))
+            ];
 
-            const response = await fetch(`${BASE_URL}/users/${executorId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    parameters: allParameters
-                })
-            });
+            console.log('Обновление пользователя:', executorId);
+            console.log('Данные:', formData);
+            console.log('Параметры:', allParameters);
 
-            if (!response.ok) throw new Error('Ошибка обновления исполнителя');
+            const result = await updateUserComplete(executorId, formData, allParameters);
 
-            const result = await response.json();
-            console.log('Update result:', result);
+            console.log('Результат обновления:', result);
 
             setLoading(false);
             onSubmit(result);
             onClose();
+
+            // Показываем успешное уведомление
+            if (showToast) {
+                showToast('Данные исполнителя успешно обновлены! ✨', 'success');
+            }
         } catch (error) {
             console.error('Ошибка обновления исполнителя:', error);
-            alert('Ошибка при обновлении исполнителя');
             setLoading(false);
+
+            // Показываем ошибку
+            if (showToast) {
+                showToast(`Ошибка при обновлении: ${error.message}`, 'error');
+            }
         }
     };
 
@@ -226,8 +262,12 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
     };
 
     const removeExistingParameter = (index) => {
-        const newParams = formData.parameters.filter((_, i) => i !== index);
-        setFormData({ ...formData, parameters: newParams });
+        const filtered = existingParameters.filter((_, i) => i !== index);
+        setExistingParameters(filtered);
+
+        if (showToast) {
+            showToast('Параметр удален. Нажмите "Сохранить" для применения изменений', 'info');
+        }
     };
 
     const removeNewParameter = (index) => {
@@ -254,11 +294,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
         }
     };
 
-    const getParameterName = (parameterId) => {
-        const param = availableParameters.find(p => p.id === parameterId);
-        return param ? `${param.key} (${param.value_type})` : `ID: ${parameterId}`;
-    };
-
     if (!isOpen) return null;
 
     return (
@@ -280,7 +315,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                     <div className={styles.loadingState}>Загрузка данных...</div>
                 ) : (
                     <form onSubmit={handleSubmit} className={styles.modalForm}>
-                        {/* Имя */}
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Имя *</label>
                             <input
@@ -298,7 +332,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             )}
                         </div>
 
-                        {/* Фамилия */}
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Фамилия *</label>
                             <input
@@ -316,7 +349,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             )}
                         </div>
 
-                        {/* Отчество */}
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Отчество</label>
                             <input
@@ -328,7 +360,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             />
                         </div>
 
-                        {/* Дневной лимит и Вес */}
                         <div className={styles.formRow}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Дневной лимит *</label>
@@ -350,10 +381,7 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>
                                     Вес *
-                                    <span
-                                        className={styles.levelBadge}
-                                        style={getLevelBadgeStyle()}
-                                    >
+                                    <span className={styles.levelBadge} style={getLevelBadgeStyle()}>
                                         {executorLevel}
                                     </span>
                                 </label>
@@ -378,7 +406,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             </div>
                         </div>
 
-                        {/* Статус */}
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Статус</label>
                             <select
@@ -391,19 +418,18 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             </select>
                         </div>
 
-                        {/* Существующие параметры */}
-                        {formData.parameters.length > 0 && (
+                        {existingParameters.length > 0 && (
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Текущие параметры</label>
                                 <p className={styles.helperText}>
-                                    Существующие параметры нельзя редактировать, только удалить
+                                    Эти параметры загружены из базы данных. Их нельзя редактировать, только удалить.
                                 </p>
-                                {formData.parameters.map((param, index) => (
+                                {existingParameters.map((param, index) => (
                                     <div key={`existing-${index}`} className={styles.existingParameterCard}>
                                         <div className={styles.existingParameterInfo}>
-                                            <strong>{getParameterName(param.parameter_id)}</strong>
+                                            <strong>{param.key || `ID: ${param.parameter_id}`} ({param.value_type})</strong>
                                             <span className={styles.operatorBadge}>{param.comparison_operator}</span>
-                                            <span>{param.value}</span>
+                                            <span className={styles.paramValue}>{param.value}</span>
                                         </div>
                                         <button
                                             type="button"
@@ -417,7 +443,6 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             </div>
                         )}
 
-                        {/* Новые параметры */}
                         <div className={styles.formGroup}>
                             <div className={styles.parametersHeader}>
                                 <label className={styles.formLabel}>Добавить новые параметры</label>
@@ -430,7 +455,7 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                                 </button>
                             </div>
 
-                            {newParameters.length === 0 && formData.parameters.length === 0 && (
+                            {newParameters.length === 0 && existingParameters.length === 0 && (
                                 <p className={styles.helperText}>
                                     Нажмите "Добавить параметр" для настройки
                                 </p>
@@ -490,20 +515,11 @@ const EditExecutorModal = ({ isOpen, onClose, onSubmit, executorId }) => {
                             ))}
                         </div>
 
-                        {/* Действия */}
                         <div className={styles.modalActions}>
-                            <button
-                                type="button"
-                                className={styles.cancelButton}
-                                onClick={onClose}
-                            >
+                            <button type="button" className={styles.cancelButton} onClick={onClose}>
                                 Отмена
                             </button>
-                            <button
-                                type="submit"
-                                className={styles.submitButton}
-                                disabled={loading}
-                            >
+                            <button type="submit" className={styles.submitButton} disabled={loading}>
                                 {loading ? 'Сохранение...' : 'Сохранить изменения'}
                             </button>
                         </div>

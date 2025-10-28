@@ -95,3 +95,91 @@ export async function createSeniorExecutor(data) {
 
     return createUser(userData);
 }
+
+export async function updateUser(userId, userData) {
+    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            middle_name: userData.middle_name,
+            status: userData.status,
+            daily_limit: userData.daily_limit,
+            weight: userData.weight
+        }),
+    });
+
+    if (!response.ok) throw new Error('Ошибка обновления пользователя');
+    return response.json();
+}
+
+// Обновить параметры исполнителя
+export async function updateUserParameters(userId, parameters) {
+    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+            parameters: parameters
+        }),
+    });
+
+    if (!response.ok) throw new Error('Ошибка обновления параметров');
+    return response.json();
+}
+
+// Обновить всё сразу (данные + параметры)
+export async function updateUserComplete(userId, userData, parameters) {
+    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify({
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            middle_name: userData.middle_name,
+            status: userData.status,
+            daily_limit: userData.daily_limit,
+            weight: userData.weight,
+            parameters: parameters
+        }),
+    });
+
+    if (!response.ok) throw new Error('Ошибка обновления пользователя');
+    return response.json();
+}
+// Получить конкретного пользователя по ID
+export async function fetchUserById(userId) {
+    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+    });
+
+    if (!response.ok) throw new Error('Ошибка получения пользователя');
+    return response.json();
+}
+
+// Удалить пользователя
+export async function deleteUser(userId) {
+    const response = await fetch(`${BASE_URL}/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+    });
+
+    if (!response.ok) throw new Error('Ошибка удаления пользователя');
+    return response.json();
+}

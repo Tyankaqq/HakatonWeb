@@ -5,7 +5,8 @@ import PerformersTable from '../components/ExecutorsPage/PerformersTable';
 import AddExecutorModal from '../components/ExecutorsPage/AddExecutorModal';
 import EditExecutorModal from '../components/ExecutorsPage/EditExecutorModal';
 import SearchInput from '../components/ExecutorsPage/SearchInput';
-import { fetchAllUsers, createUser } from '../API/ExecutorsAPI/ExecutorsAPI.js';
+import Toast from '../components/Toast';
+import { fetchAllUsers, createUser, deleteUser } from '../API/ExecutorsAPI/ExecutorsAPI.js';
 import styles from '../css/ExecutorsPage/ExecutorsPage.module.css';
 
 const ExecutorPage = () => {
@@ -20,6 +21,7 @@ const ExecutorPage = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedExecutorId, setSelectedExecutorId] = useState(null);
+    const [toast, setToast] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -28,6 +30,14 @@ const ExecutorPage = () => {
     useEffect(() => {
         filterPerformers();
     }, [searchQuery, performers]);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+    };
+
+    const hideToast = () => {
+        setToast(null);
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -95,24 +105,45 @@ const ExecutorPage = () => {
         try {
             console.log('Данные для создания:', formData);
 
-            // Используем функцию createUser из API
             const result = await createUser(formData);
 
             console.log('Результат создания:', result);
 
             await loadData();
             setModalOpen(false);
-            alert('Исполнитель успешно добавлен');
+
+            showToast('Исполнитель успешно добавлен! 🎉', 'success');
         } catch (error) {
             console.error('Ошибка добавления исполнителя:', error);
-            alert(`Ошибка при добавлении исполнителя: ${error.message}`);
+            showToast(`Ошибка: ${error.message}`, 'error');
         }
     };
 
     const handleEditPerformer = async () => {
         await loadData();
         setEditModalOpen(false);
-        alert('Исполнитель успешно обновлен');
+    };
+
+    const handleDeletePerformer = async (executorId, executorName) => {
+        // Подтверждение удаления
+        const confirmed = window.confirm(
+            `Вы уверены, что хотите удалить исполнителя "${executorName}"?\n\nЭто действие нельзя отменить.`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            console.log('Удаление исполнителя:', executorId);
+
+            await deleteUser(executorId);
+
+            await loadData();
+
+            showToast(`Исполнитель "${executorName}" успешно удален`, 'success');
+        } catch (error) {
+            console.error('Ошибка удаления исполнителя:', error);
+            showToast(`Ошибка удаления: ${error.message}`, 'error');
+        }
     };
 
     const openEditModal = (executorId) => {
@@ -122,6 +153,14 @@ const ExecutorPage = () => {
 
     return (
         <div className={styles.container}>
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
+            )}
+
             <div className={styles.header}>
                 <h1 className="modalHeader">Исполнители</h1>
             </div>
@@ -159,6 +198,7 @@ const ExecutorPage = () => {
                 performers={filteredPerformers}
                 loading={loading}
                 onEdit={openEditModal}
+                onDelete={handleDeletePerformer}
             />
 
             <AddExecutorModal
@@ -172,6 +212,7 @@ const ExecutorPage = () => {
                 onClose={() => setEditModalOpen(false)}
                 onSubmit={handleEditPerformer}
                 executorId={selectedExecutorId}
+                showToast={showToast}
             />
         </div>
     );

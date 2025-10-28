@@ -80,6 +80,8 @@
     background-color: #1a1a1a;
 }
 
+
+
 @media screen and (max-width: 768px) {
     .container {
         padding: 1rem;
