@@ -16,6 +16,7 @@ class Task extends Model
         'user_id',
         'parameters',
         'assigned_at',
+        'execution_time_ms'
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Task extends Model
         'assigned_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'execution_time_ms' => 'float',
     ];
 
     public function user(): BelongsTo

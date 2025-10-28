@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Jobs\AssignTaskJob;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
@@ -20,38 +21,14 @@ class TaskService
     /**
      * Получить список задач
      */
-    public function getTasks(Request $request): JsonResponse
+    public function getTasks(): JsonResponse
     {
-        $userId = $request->input('user_id');
-        $priority = $request->input('priority');
-        $minWeight = $request->input('min_weight');
-        $maxWeight = $request->input('max_weight');
-
-        $query = Task::query()->with('user:id,first_name,last_name');
-
-        if ($userId) {
-            $query->where('user_id', $userId);
-        }
-
-        if ($priority) {
-            $query->where('priority', $priority);
-        }
-
-        if ($minWeight) {
-            $query->where('weight', '>=', $minWeight);
-        }
-
-        if ($maxWeight) {
-            $query->where('weight', '<=', $maxWeight);
-        }
-
-        $tasks = $query->orderByRaw("
-            CASE priority
-                WHEN 'high' THEN 1
-                WHEN 'medium' THEN 2
-                WHEN 'low' THEN 3
-            END
-        ")->orderBy('created_at', 'desc')->get();
+        $tasks = Task::query()
+            ->select('id', 'task_id', 'title', 'priority', 'user_id', 'created_at', 'execution_time_ms')
+            ->with('user:id,first_name,last_name')
+            ->latest('created_at')
+            ->take(5)
+            ->get();
 
         return response()->json([
             'success' => true,

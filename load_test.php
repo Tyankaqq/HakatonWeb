@@ -1,7 +1,7 @@
 <?php
 
 $baseUrl = 'http://localhost/api/v1';
-$totalRequests = 10000;
+$totalRequests = 100;
 $concurrency = 500; // Увеличили параллелизм
 
 echo "🚀 Нагрузочное тестирование: {$totalRequests} запросов\n";

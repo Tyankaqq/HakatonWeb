@@ -17,12 +17,14 @@ class User extends Model
         'status',
         'daily_limit',
         'weight',
+        'count'
     ];
 
     protected $casts = [
         'status' => 'boolean',
         'daily_limit' => 'integer',
         'weight' => 'integer',
+        'count' => 'integer'
     ];
 
     public function parameters(): BelongsToMany
@@ -39,9 +41,7 @@ class User extends Model
 
     public function getOpenTasksCount(): int
     {
-        return $this->tasks()
-            ->whereNotNull('user_id')
-            ->count();
+        return $this->count;
     }
 
     public function getTodayTasksCount(): int

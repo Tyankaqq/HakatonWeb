@@ -19,32 +19,34 @@ class UserService
     {
         $status = $request->input('status');
 
-        $query = User::query()->with('parameters');
+        $query = User::query()
+            ->with('parameters')
+            ->select('id', 'first_name', 'last_name', 'middle_name', 'count', 'status', 'weight');
 
         // Фильтрация по статусу
         if ($status !== null) {
             $query->where('status', (bool) $status);
         }
 
-        // Добавляем количество открытых задач
-        if ($request->has('with_tasks_count')) {
-            $query->withCount([
-                'tasks as open_tasks_count' => function ($query) {
-                    $query->whereIn('status', ['assigned', 'in_progress']);
-                },
-                'tasks as today_tasks_count' => function ($query) {
-                    $query->whereDate('created_at', today());
-                }
-            ]);
-        }
-
-        $users = $query->get();
+        $users = $query->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'last_name' => $user->last_name,
+                'first_name' => $user->first_name,
+                'middle_name' => $user->middle_name ?? '',
+                'count' => $user->count,
+                'status' => $user->status,
+                'weight' => $user->weight,
+                'parameters' => $user->parameters,
+            ];
+        });
 
         return response()->json([
             'success' => true,
             'data' => $users
         ], 200);
     }
+
 
 
     /**
@@ -194,18 +196,6 @@ class UserService
      */
     public function delete(User $user): JsonResponse
     {
-        // Проверяем, есть ли у пользователя активные задачи
-        $activeTasks = $user->tasks()
-            ->whereIn('status', ['assigned', 'in_progress'])
-            ->count();
-
-        if ($activeTasks > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "Cannot delete user. User has {$activeTasks} active task(s)"
-            ], 409);
-        }
-
         $user->delete();
 
         return response()->json([
