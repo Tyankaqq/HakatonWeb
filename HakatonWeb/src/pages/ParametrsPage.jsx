@@ -7,6 +7,8 @@ import {
 } from '../API/ParametrsAPI/ParametrsAPI.js';
 import '../css/ParametrsPage/ParametrsPage.css';
 import EditLogo from '../assets/Image/EditLogo.svg';
+import DeleteIcon from '../assets/Image/DeleteIcon.svg';
+import Toast from '../components/Toast.jsx';
 
 function ParametrsPage() {
     const [parameters, setParameters] = useState([]);
@@ -16,6 +18,9 @@ function ParametrsPage() {
     const [loading, setLoading] = useState(true);
     const [filteredParameters, setFilteredParameters] = useState([]);
 
+    // Состояние для тоста
+    const [toast, setToast] = useState(null);
+
     // Данные для создания/редактирования параметра
     const [currentParam, setCurrentParam] = useState({
         key: '',
@@ -23,16 +28,21 @@ function ParametrsPage() {
         is_active: true
     });
 
-    // Флаг редактирования
     const [isEditing, setIsEditing] = useState(false);
 
-    // Функция загрузки данных
+    // Функции управления тостом
+    const showToast = (message, type = 'success', duration = 3000) => {
+        setToast({ message, type, duration });
+    };
+    const hideToast = () => {
+        setToast(null);
+    };
+
     const loadParameters = async () => {
         try {
             setLoading(true);
             const response = await fetchParameters();
 
-            // Бэкенд возвращает { success: true, data: [...] }
             if (response.success && Array.isArray(response.data)) {
                 setParameters(response.data);
             }
@@ -41,10 +51,10 @@ function ParametrsPage() {
             console.error('Ошибка загрузки:', error);
             setParameters([]);
             setLoading(false);
+            showToast('Ошибка загрузки параметров', 'error');
         }
     };
 
-    // Загружаем при монтировании
     useEffect(() => {
         loadParameters();
     }, []);
@@ -55,24 +65,22 @@ function ParametrsPage() {
         try {
             if (isEditing) {
                 await updateParameter(currentParam.id, currentParam);
-                alert('Параметр успешно обновлен');
+                showToast('Параметр успешно обновлен', 'success');
             } else {
                 await createParameter(currentParam);
-                alert('Параметр успешно добавлен');
+                showToast('Параметр успешно добавлен', 'success');
             }
 
-            // Обновляем данные без перезагрузки страницы
             await loadParameters();
 
             setModalOpen(false);
             setCurrentParam({ key: '', value_type: '', is_active: true });
         } catch (error) {
             console.error('Ошибка:', error);
-            alert('Ошибка при сохранении параметра');
+            showToast('Ошибка при сохранении параметра', 'error');
         }
     };
 
-    // Фильтрация параметров
     useEffect(() => {
         if (!parameters || !Array.isArray(parameters)) return;
 
@@ -87,29 +95,27 @@ function ParametrsPage() {
         }));
     }, [parameters, search, statusFilter]);
 
-    // Открыть модалку для нового параметра
     const openNewParamModal = () => {
         setCurrentParam({ key: '', value_type: 'string', is_active: true });
         setIsEditing(false);
         setModalOpen(true);
     };
 
-    // Открыть модалку для редактирования существующего параметра
     const openEditParamModal = (param) => {
         setCurrentParam(param);
         setIsEditing(true);
         setModalOpen(true);
     };
 
-    // Удалить параметр
     const handleDeleteParam = async (id) => {
         if (!window.confirm('Удалить параметр?')) return;
         try {
             await deleteParameter(id);
             await loadParameters();
+            showToast('Параметр успешно удален', 'success');
         } catch (error) {
             console.error(error);
-            alert('Ошибка удаления параметра');
+            showToast('Ошибка удаления параметра', 'error');
         }
     };
 
@@ -118,6 +124,16 @@ function ParametrsPage() {
 
     return (
         <div className="parameters-page">
+            {/* Toast уведомление */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    duration={toast.duration}
+                    onClose={hideToast}
+                />
+            )}
+
             <div className="stats-row">
                 <div className="stats-card">
                     <div className="stats-label">Всего параметров</div>
@@ -193,10 +209,12 @@ function ParametrsPage() {
                             </td>
                             <td>
                                 <button className="edit-btn" onClick={() => openEditParamModal(param)}>
-                                    {/*<img src={EditLogo} />*/}
+                                    <img src={EditLogo} width="30px" height="30px" />
                                 </button>
 
-                                <button className="delete-btn" onClick={() => handleDeleteParam(param.id)}></button>
+                                <button className="delete-btn" onClick={() => handleDeleteParam(param.id)}>
+                                    <img src={DeleteIcon} width="30px" height="30px" />
+                                </button>
                             </td>
                         </tr>
                     ))
@@ -204,7 +222,6 @@ function ParametrsPage() {
                 </tbody>
             </table>
 
-            {/* Модальное окно */}
             {modalOpen && (
                 <div className="modal-overlay" onClick={() => setModalOpen(false)}>
                     <div className="modal-window" onClick={e => e.stopPropagation()}>
