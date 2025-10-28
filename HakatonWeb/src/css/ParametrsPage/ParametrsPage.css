@@ -1,5 +1,5 @@
 .parameters-page {
-    max-width: 1160px;
+    max-width: 1720px;
     margin: 0 auto;
     padding: 24px;
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
@@ -54,7 +54,7 @@
     font-size: 15px;
 }
 .create-button {
-    background: #222;
+    background: #030213;
     color: #fff;
     border-radius: 8px;
     border: none;
@@ -82,12 +82,41 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #f3f3f3;
 }
+.description{
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #f3f3f3;
+    color : #717182;
+}
 th {
     background: #f3f5fc;
     font-weight: 500;
     color: #484848;
 }
-
+.mini-tag-id{
+    display: inline-block;
+    background: #f3f5fc;
+    color: #333;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Consolas, monaco, monospace;
+    font-weight: 500;
+    padding: 2px 10px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+.mini-tag-inactive{
+    display: inline-block;
+    background: #f3f5fc;
+    color: #717182;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 2px 10px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
 .mini-tag {
     display: inline-block;
     background: #f3f5fc;
@@ -104,7 +133,7 @@ th {
 .status-active {
     color: #219653;
     background: #eafbe7;
-    padding: 4px 16px;
+
     border-radius: 8px;
     font-size: 15px;
     font-weight: 500;
@@ -112,7 +141,7 @@ th {
 .status-inactive {
     color: #a82c2c;
     background: #fdeaea;
-    padding: 4px 16px;
+
     border-radius: 8px;
     font-size: 15px;
     font-weight: 500;
@@ -125,13 +154,14 @@ th {
 }
 .bottom-label {
     font-weight: 500;
-    margin-bottom: 8px;
+    margin-bottom: 24px;
     color: #444;
 }
 .bottom-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
+    cursor: default;
 }
 
 .modal-overlay {

@@ -1,4 +1,4 @@
-const BASE_URL = 'https://zmm89a-5-142-188-207.ru.tuna.am/api/v1';
+const BASE_URL = 'https://530a6d0b0eac.ngrok-free.app/api/v1';
 
 export async function fetchParameters() {
     const response = await fetch(`${BASE_URL}/parameters`);

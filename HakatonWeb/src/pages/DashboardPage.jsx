@@ -1,84 +1,65 @@
 import React from 'react';
-import TotalInformation from "../components/TotalInformation.jsx";
-import '../css/DashBoardPage/DashboardPage.css'
+import StatsCard from '../components/Dashboard/StatsCard';
+import BarChart from '../components/Dashboard/BarChart';
+import LineChart from '../components/Dashboard/LineChart';
+import TasksList from '../components/Dashboard/TasksList';
+import QueueStats from '../components/Dashboard/QueueStats';
+import '../css/DashBoard/DashBoardPage.css';
 
-function DashboardPage() {
+const DashboardPage = () => {
+    const statsData = [
+        { title: 'Всего задач', value: '3,847', change: '+12.5%', changeType: 'positive', subtitle: 'за последнюю неделю', icon: 'tasks', color: '#3b82f6' },
+        { title: 'Активных исполнителей', value: '247', change: '+3.2%', changeType: 'positive', subtitle: 'за последнюю неделю', icon: 'users', color: '#10b981' },
+        { title: 'В обработке', value: '1,234', change: '-2.1%', changeType: 'negative', subtitle: 'за последнюю неделю', icon: 'clock', color: '#f59e0b' },
+        { title: 'Завершено сегодня', value: '892', change: '+18.3%', changeType: 'positive', subtitle: 'за последнюю неделю', icon: 'check', color: '#22c55e' }
+    ];
+
+    const barData = [
+        { label: 'Пн', value: 145, height: '47%' },
+        { label: 'Вт', value: 210, height: '68%' },
+        { label: 'Ср', value: 180, height: '58%' },
+        { label: 'Чт', value: 235, height: '76%' },
+        { label: 'Пт', value: 310, height: '100%' },
+        { label: 'Сб', value: 125, height: '40%' },
+        { label: 'Вс', value: 85, height: '27%' }
+    ];
+
+    const tasksData = [
+        { id: 'TSK-4721', title: 'Обработка заказов из CRM', assignee: 'Иванов А.П.', priority: 'high', status: 'pending' },
+        { id: 'TSK-4720', title: 'Синхронизация каталога товаров', assignee: 'Петрова М.С.', priority: 'medium', status: 'completed' },
+        { id: 'TSK-4719', title: 'Экспорт отчётов Excel', assignee: 'Сидоров К.В.', priority: 'low', status: 'pending' },
+        { id: 'TSK-4718', title: 'Интеграция с платежной системой', assignee: 'Козлова Н.И.', priority: 'high', status: 'waiting' },
+        { id: 'TSK-4717', title: 'Обновление данных через REST API', assignee: 'Морозов Д.А.', priority: 'medium', status: 'completed' }
+    ];
+
+    const queuesData = [
+        { name: 'High Priority', count: 234, progress: 78, color: '#ef4444' },
+        { name: 'Medium Priority', count: 567, progress: 56, color: '#3b82f6' },
+        { name: 'Low Priority', count: 892, progress: 34, color: '#94a3b8' },
+        { name: 'Integration Tasks', count: 145, progress: 67, color: '#8b5cf6' }
+    ];
+
     return (
-        <div className="dashboard=page-container">
-            <div className="dashboard-graphics">
+        <div className="dashboard">
+            <h1 className="dashboard-heading">Dashboard</h1>
 
-                <TotalInformation
-                    title="Всего задач"
-                    value="3,847"
-                    diffValue="+12.5%"
-                    diffText="за последнюю неделю"
-                    diffColor="#3DB36A"
-                    icon= {<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-checks h-4 w-4 text-blue-600" aria-hidden="true"><path d="M13 5h8"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="m3 17 2 2 4-4"></path><path d="m3 7 2 2 4-4"></path></svg>}
-                />
-
-                <TotalInformation
-                    title="Активных пользователей"
-                    value="3,847"
-                    diffValue="+12.5%"
-                    diffText="за последнюю неделю"
-                    diffColor="#3DB36A"
-                    icon ={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                className="lucide lucide-users h-4 w-4 text-green-600" aria-hidden="true">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                    </svg>}
-                />
-
-                <TotalInformation
-                    title="В обработке "
-                    value="3,847"
-                    diffValue="+12.5%"
-                    diffText="за последнюю неделю"
-                    diffColor="#3DB36A"
-                    icon ={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                className="lucide lucide-clock h-4 w-4 text-orange-600" aria-hidden="true">
-                        <path d="M12 6v6l4 2"></path>
-                        <circle cx="12" cy="12" r="10"></circle>
-                    </svg>}
-                />
-
-                <TotalInformation
-                    title="Завершено сегодня"
-                    value="3,847"
-                    diffValue="+12.5%"
-                    diffText="за последнюю неделю"
-                    diffColor="#3DB36A"
-                    icon ={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                className="lucide lucide-circle-check h-4 w-4 text-emerald-600" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="m9 12 2 2 4-4"></path>
-                    </svg>}
-                />
+            <div className="stats-grid">
+                {statsData.map((stat, index) => (
+                    <StatsCard key={index} {...stat} />
+                ))}
             </div>
 
-            <div className="graphics">
-                <div className="done-task-for-week">
-                    <h1>Выполнено задач за неделю</h1>
-                </div>
-                <div>
-                    <h1>Загрузка системы</h1>
-                </div>
+            <div className="charts-grid">
+                <BarChart title="Выполнено задач за неделю" data={barData} />
+                <LineChart title="Загрузка системы" />
             </div>
 
-            <div className="last-tasks">
-                <h1>Последние задачи</h1>
-            </div>
-
-            <div className="queue-status">
-                <h1>Статус очередей</h1>
+            <div className="bottom-grid">
+                <TasksList title="Последние задачи" tasks={tasksData} />
+                <QueueStats title="Статус очередей" queues={queuesData} />
             </div>
         </div>
     );
-}
+};
 
 export default DashboardPage;

@@ -1,33 +1,99 @@
-.main-header {
-    background: #f5f5f5;
-    padding: 0 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
 }
 
-.main-nav {
+/* Логотип */
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-logo {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 18px;
-    height: 56px;
+    gap: 0.75rem;
 }
 
-.nav-link {
-    color: #333;
+.sidebar-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Навигация */
+.sidebar-nav {
+    padding: 1rem 0;
+    flex: 1;
+}
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    margin: 0.125rem 0.5rem;
+    color: #64748b;
     text-decoration: none;
-    font-size: 17px;
+    border-radius: 6px;
+    font-size: 0.875rem;
     font-weight: 500;
-    padding: 8px 14px;
-    border-radius: 4px;
-    transition: background 0.18s, color 0.18s;
+    transition: all 0.2s;
+    cursor: pointer;
 }
 
-.nav-link:hover {
-    background: #eaeaea;
-    color: #0057b7;
+.nav-item:hover {
+    background-color: #f8fafc;
+    color: #1e293b;
 }
 
-.nav-link.active {
-    background: #e0e0e0;
-    color: #1976d2;
+.nav-item.active {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-weight: 600;
 }
+
+.nav-item svg {
+    flex-shrink: 0;
+}
+
+/* Скроллбар */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+
