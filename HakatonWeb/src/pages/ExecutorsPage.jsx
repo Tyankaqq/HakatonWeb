@@ -92,7 +92,7 @@ const ExecutorPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Исполнители</h1>
+                <h1 className="modalHeader">Исполнители</h1>
             </div>
 
             {stats && (

@@ -13,7 +13,6 @@ const BalancerPage = () => {
         <div className={styles.container}>
             <h1 className={styles.title}>Балансировщик</h1>
 
-            {/* Stats Cards */}
             <div className={styles.statsGrid}>
                 <StatsCard
                     title="Распределено задач"
@@ -45,13 +44,11 @@ const BalancerPage = () => {
                 />
             </div>
 
-            {/* Main Content */}
             <div className={styles.mainGrid}>
                 <LiveFeed assignments={assignments} loading={loading} />
                 <ExecutorLoad executors={executors} />
             </div>
 
-            {/* Algorithm Info */}
             <AlgorithmInfo />
         </div>
     );
