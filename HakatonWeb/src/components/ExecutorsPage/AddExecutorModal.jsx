@@ -1,3 +1,4 @@
+// src/components/ExecutorsPage/AddExecutorModal.jsx
 import React, { useState, useEffect } from 'react';
 import MultiSelectDropdown from './MultiSelectDropdown';
 import styles from '../../css/ExecutorsPage/AddExecutorModal.module.css';
@@ -9,7 +10,7 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         last_name: '',
         middle_name: '',
         status: true,
-        daily_limit: 999,
+        daily_limit: 50,
         weight: 3,
         parameters: []
     });
@@ -17,6 +18,7 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
     const [errors, setErrors] = useState({});
     const [availableParameters, setAvailableParameters] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [executorLevel, setExecutorLevel] = useState('Junior'); // Уровень исполнителя
 
     // Загружаем параметры из API
     useEffect(() => {
@@ -25,13 +27,26 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         }
     }, [isOpen]);
 
+    // Определяем уровень при изменении веса
+    useEffect(() => {
+        const weight = formData.weight;
+        if (weight >= 1 && weight <= 3) {
+            setExecutorLevel('Junior');
+        } else if (weight >= 4 && weight <= 6) {
+            setExecutorLevel('Middle');
+        } else if (weight >= 7 && weight <= 10) {
+            setExecutorLevel('Senior');
+        } else {
+            setExecutorLevel('Неизвестный');
+        }
+    }, [formData.weight]);
+
     const loadParameters = async () => {
         try {
             setLoading(true);
             const response = await fetchParameters();
 
             if (response.success && Array.isArray(response.data)) {
-                // Фильтруем только активные параметры
                 const activeParams = response.data.filter(p => p.is_active);
                 setAvailableParameters(activeParams);
             }
@@ -41,12 +56,11 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
             setLoading(false);
         }
     };
+
     const renderValueInput = (param, index) => {
-        // Находим выбранный параметр чтобы узнать его тип
         const selectedParameter = availableParameters.find(p => p.id === param.parameter_id);
         const valueType = selectedParameter?.value_type || 'string';
 
-        // Общие пропсы для всех input
         const commonProps = {
             className: styles.valueInput,
             value: param.value,
@@ -56,92 +70,29 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
 
         switch (valueType) {
             case 'integer':
-                return (
-                    <input
-                        {...commonProps}
-                        type="number"
-                        step="1"
-                        placeholder="Целое число"
-                    />
-                );
-
+                return <input {...commonProps} type="number" step="1" placeholder="Целое число" />;
             case 'float':
-                return (
-                    <input
-                        {...commonProps}
-                        type="number"
-                        step="0.01"
-                        placeholder="Число с дробью"
-                    />
-                );
-
+                return <input {...commonProps} type="number" step="0.01" placeholder="Число с дробью" />;
             case 'boolean':
                 return (
-                    <select
-                        {...commonProps}
-                        className={styles.valueInput}
-                    >
+                    <select {...commonProps} className={styles.valueInput}>
                         <option value="">Выберите</option>
                         <option value="true">True</option>
                         <option value="false">False</option>
                     </select>
                 );
-
             case 'date':
-                return (
-                    <input
-                        {...commonProps}
-                        type="date"
-                        placeholder="Дата"
-                    />
-                );
-
+                return <input {...commonProps} type="date" placeholder="Дата" />;
             case 'datetime':
-                return (
-                    <input
-                        {...commonProps}
-                        type="datetime-local"
-                        placeholder="Дата и время"
-                    />
-                );
-
             case 'timestamp':
-                return (
-                    <input
-                        {...commonProps}
-                        type="datetime-local"
-                        placeholder="Временная метка"
-                    />
-                );
-
+                return <input {...commonProps} type="datetime-local" placeholder="Дата и время" />;
             case 'array':
-                return (
-                    <input
-                        {...commonProps}
-                        type="text"
-                        placeholder='["item1", "item2"]'
-                    />
-                );
-
+                return <input {...commonProps} type="text" placeholder='["item1", "item2"]' />;
             case 'json':
-                return (
-                    <textarea
-                        {...commonProps}
-                        className={styles.valueTextarea}
-                        placeholder='{"key": "value"}'
-                        rows="2"
-                    />
-                );
-
+                return <textarea {...commonProps} className={styles.valueTextarea} placeholder='{"key": "value"}' rows="2" />;
             case 'string':
             default:
-                return (
-                    <input
-                        {...commonProps}
-                        type="text"
-                        placeholder="Текст"
-                    />
-                );
+                return <input {...commonProps} type="text" placeholder="Текст" />;
         }
     };
 
@@ -157,6 +108,7 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                 parameters: []
             });
             setErrors({});
+            setExecutorLevel('Junior');
         }
     }, [isOpen]);
 
@@ -175,8 +127,8 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
             newErrors.daily_limit = 'Укажите дневной лимит';
         }
 
-        if (!formData.weight || formData.weight <= 0) {
-            newErrors.weight = 'Укажите вес';
+        if (!formData.weight || formData.weight <= 0 || formData.weight > 10) {
+            newErrors.weight = 'Вес должен быть от 1 до 10';
         }
 
         if (formData.parameters.length === 0) {
@@ -195,7 +147,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         }
     };
 
-    // Добавить новый параметр
     const addParameter = () => {
         setFormData({
             ...formData,
@@ -206,13 +157,11 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         });
     };
 
-    // Удалить параметр
     const removeParameter = (index) => {
         const newParameters = formData.parameters.filter((_, i) => i !== index);
         setFormData({ ...formData, parameters: newParameters });
     };
 
-    // Изменить параметр
     const updateParameter = (index, field, value) => {
         const newParameters = [...formData.parameters];
         newParameters[index][field] = value;
@@ -220,6 +169,20 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
 
         if (errors.parameters) {
             setErrors({ ...errors, parameters: null });
+        }
+    };
+
+    // Функция для получения цвета бейджа уровня
+    const getLevelBadgeStyle = () => {
+        switch (executorLevel) {
+            case 'Junior':
+                return { backgroundColor: '#DBEAFE', color: '#1E40AF' };
+            case 'Middle':
+                return { backgroundColor: '#FEF3C7', color: '#92400E' };
+            case 'Senior':
+                return { backgroundColor: '#D1FAE5', color: '#065F46' };
+            default:
+                return { backgroundColor: '#F3F4F6', color: '#6B7280' };
         }
     };
 
@@ -299,7 +262,7 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                                 placeholder="50"
                                 value={formData.daily_limit}
                                 onChange={(e) => {
-                                    setFormData({ ...formData, daily_limit: parseInt(e.target.value) });
+                                    setFormData({ ...formData, daily_limit: parseInt(e.target.value) || 0 });
                                     if (errors.daily_limit) setErrors({ ...errors, daily_limit: null });
                                 }}
                             />
@@ -309,20 +272,33 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Вес *</label>
+                            <label className={styles.formLabel}>
+                                Вес *
+                                <span
+                                    className={styles.levelBadge}
+                                    style={getLevelBadgeStyle()}
+                                >
+                                    {executorLevel}
+                                </span>
+                            </label>
                             <input
                                 type="number"
+                                min="1"
+                                max="10"
                                 className={`${styles.formInput} ${errors.weight ? styles.inputError : ''}`}
                                 placeholder="3"
                                 value={formData.weight}
                                 onChange={(e) => {
-                                    setFormData({ ...formData, weight: parseInt(e.target.value) });
+                                    setFormData({ ...formData, weight: parseInt(e.target.value) || 1 });
                                     if (errors.weight) setErrors({ ...errors, weight: null });
                                 }}
                             />
                             {errors.weight && (
                                 <span className={styles.errorText}>{errors.weight}</span>
                             )}
+                            <p className={styles.helperText}>
+                                1-3: Junior | 4-6: Middle | 7-10: Senior
+                            </p>
                         </div>
                     </div>
 
@@ -362,7 +338,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                         {formData.parameters.map((param, index) => (
                             <div key={index} className={styles.parameterCard}>
                                 <div className={styles.parameterGrid}>
-                                    {/* Параметр */}
                                     <div className={styles.parameterColumn}>
                                         <label className={styles.parameterLabel}>Параметр</label>
                                         <select
@@ -382,7 +357,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                                         </select>
                                     </div>
 
-                                    {/* Оператор */}
                                     <div className={styles.parameterColumn}>
                                         <label className={styles.parameterLabel}>Оператор</label>
                                         <select
@@ -399,7 +373,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                                         </select>
                                     </div>
 
-                                    {/* Значение */}
                                     <div className={styles.ValueParameterColumn}>
                                         <label className={styles.parameterLabel}>Значение</label>
                                         {renderValueInput(param, index)}
@@ -414,7 +387,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                                 </div>
                             </div>
                         ))}
-
 
                         {errors.parameters && (
                             <span className={styles.errorText}>{errors.parameters}</span>
@@ -434,7 +406,7 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
                             type="submit"
                             className={styles.submitButton}
                         >
-                            Добавить
+                            Добавить {executorLevel}
                         </button>
                     </div>
                 </form>

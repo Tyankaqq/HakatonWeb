@@ -1,9 +1,10 @@
+// src/components/ExecutorsPage/PerformersTable.jsx
 import React, { useState } from 'react';
 import StatusIndicator from './StatusIndicator';
 import ProgressBar from './ProgressBar';
 import styles from '../../css/components/ExecutorsTable.module.css';
 
-const PerformersTable = ({ performers, loading }) => {
+const PerformersTable = ({ performers, loading, onEdit }) => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const handleSort = (key) => {
@@ -47,6 +48,29 @@ const PerformersTable = ({ performers, loading }) => {
         return `${Math.floor(diff / 86400)} дней назад`;
     };
 
+    // Определить уровень по весу
+    const getLevel = (weight) => {
+        if (!weight) return 'Не указан';
+        if (weight >= 1 && weight <= 3) return 'Junior';
+        if (weight >= 4 && weight <= 6) return 'Middle';
+        if (weight >= 7 && weight <= 10) return 'Senior';
+        return 'Неизвестный';
+    };
+
+    // Стили для бейджа уровня
+    const getLevelBadgeStyle = (level) => {
+        switch (level) {
+            case 'Junior':
+                return { backgroundColor: '#DBEAFE', color: '#1E40AF' };
+            case 'Middle':
+                return { backgroundColor: '#FEF3C7', color: '#92400E' };
+            case 'Senior':
+                return { backgroundColor: '#D1FAE5', color: '#065F46' };
+            default:
+                return { backgroundColor: '#F3F4F6', color: '#6B7280' };
+        }
+    };
+
     const SortIcon = ({ columnKey }) => {
         if (sortConfig.key !== columnKey) {
             return <span className={styles.sortIcon}>⇅</span>;
@@ -76,37 +100,63 @@ const PerformersTable = ({ performers, loading }) => {
                     <th onClick={() => handleSort('totalTasks')}>
                         Всего задач <SortIcon columnKey="totalTasks" />
                     </th>
-
-
-
+                    <th onClick={() => handleSort('weight')}>
+                        Уровень <SortIcon columnKey="weight" />
+                    </th>
+                    <th>
+                        Действия
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
                 {sortedPerformers.length === 0 ? (
                     <tr>
-                        <td colSpan="7" className={styles.empty}>
+                        <td colSpan="5" className={styles.empty}>
                             Исполнители не найдены
                         </td>
                     </tr>
                 ) : (
-                    sortedPerformers.map((performer) => (
-                        <tr key={performer.id}>
-                            <td>
-                                <div className={styles.performerCell}>
-                                    <div className={styles.avatar}>{performer.initials}</div>
-                                    <div className={styles.performerInfo}>
-                                        <div className={styles.performerName}>{performer.name}</div>
-                                        <div className={styles.performerEmail}>{performer.email}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <StatusIndicator status={performer.status} />
-                            </td>
-                            <td className={styles.numberCell}>{performer.totalTasks}</td>
+                    sortedPerformers.map((performer) => {
+                        const level = getLevel(performer.weight);
+                        const levelStyle = getLevelBadgeStyle(level);
 
-                        </tr>
-                    ))
+                        return (
+                            <tr key={performer.id}>
+                                <td>
+                                    <div className={styles.performerCell}>
+                                        <div className={styles.avatar}>{performer.initials}</div>
+                                        <div className={styles.performerInfo}>
+                                            <div className={styles.performerName}>{performer.name}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <StatusIndicator status={performer.status} />
+                                </td>
+                                <td className={styles.numberCell}>{performer.totalTasks}</td>
+                                <td>
+                                    <span
+                                        className={styles.levelBadge}
+                                        style={levelStyle}
+                                    >
+                                        {level}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button
+                                        className={styles.editButton}
+                                        onClick={() => onEdit(performer.id)}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                        Редактировать
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })
                 )}
                 </tbody>
             </table>

@@ -268,3 +268,52 @@
 .submitButton:hover {
     background-color: #1a1a1a;
 }
+.levelBadge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.helperText {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+}
+/* src/css/ExecutorsPage/AddExecutorModal.module.css */
+
+.existingParameterCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.existingParameterInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.operatorBadge {
+    padding: 0.25rem 0.5rem;
+    background: #E0E7FF;
+    color: #4338CA;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.loadingState {
+    text-align: center;
+    padding: 3rem;
+    color: #6B7280;
+    font-size: 1rem;
+}

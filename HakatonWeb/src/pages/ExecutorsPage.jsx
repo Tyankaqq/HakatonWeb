@@ -1,18 +1,26 @@
+// Обновленный ExecutorPage.jsx с EditExecutorModal
 import React, { useState, useEffect } from 'react';
 import StatsCard from '../components/ExecutorsPage/StatsCard';
 import PerformersTable from '../components/ExecutorsPage/PerformersTable';
-import AddExecutorModal from '../components/ExecutorsPage//AddExecutorModal';
+import AddExecutorModal from '../components/ExecutorsPage/AddExecutorModal';
+import EditExecutorModal from '../components/ExecutorsPage/EditExecutorModal';
 import SearchInput from '../components/ExecutorsPage/SearchInput';
-import { getPerformers, getStats } from '../data/performersData';
 import styles from '../css/ExecutorsPage/ExecutorsPage.module.css';
+
+const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
 
 const ExecutorPage = () => {
     const [performers, setPerformers] = useState([]);
     const [filteredPerformers, setFilteredPerformers] = useState([]);
-    const [stats, setStats] = useState(null);
+    const [stats, setStats] = useState({
+        totalPerformers: 0,
+        activeNow: 0
+    });
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedExecutorId, setSelectedExecutorId] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -25,16 +33,54 @@ const ExecutorPage = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [performersData, statsData] = await Promise.all([
-                getPerformers(),
-                getStats()
-            ]);
-            setPerformers(performersData);
-            setFilteredPerformers(performersData);
-            setStats(statsData);
+            const response = await fetch(`${BASE_URL}/users`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+            });
+
+            if (!response.ok) throw new Error('Ошибка получения пользователей');
+
+            const data = await response.json();
+            let users = [];
+            if (data.success && Array.isArray(data.data)) {
+                users = data.data;
+            } else if (Array.isArray(data)) {
+                users = data;
+            }
+
+            const formattedPerformers = users.map(user => ({
+                id: user.id?.toString(),
+                initials: `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`,
+                name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+                email: user.email || 'N/A',
+                role: 'Исполнитель',
+                status: user.status ? 'Активен' : 'Неактивен',
+                totalTasks: user.tasks_count || 0,
+                completed: 0,
+                inProgress: user.tasks_count || 0,
+                productivity: 0,
+                lastActivity: new Date(),
+                skills: [],
+                weight: user.weight || 0  // Добавляем вес
+            }));
+
+            setPerformers(formattedPerformers);
+            setFilteredPerformers(formattedPerformers);
+
+            const activeCount = users.filter(u => u.status).length;
+            setStats({
+                totalPerformers: users.length,
+                activeNow: activeCount
+            });
+
+            setLoading(false);
         } catch (error) {
-            console.error('Error loading data:', error);
-        } finally {
+            console.error('Ошибка загрузки данных:', error);
+            setPerformers([]);
+            setFilteredPerformers([]);
             setLoading(false);
         }
     };
@@ -54,39 +100,37 @@ const ExecutorPage = () => {
         setFilteredPerformers(filtered);
     };
 
-    const handleAddPerformer = (formData) => {
-        const initials = formData.fullName
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
-
-        const newPerformer = {
-            id: Date.now().toString(),
-            initials: initials,
-            name: formData.fullName,
-            email: formData.email,
-            role: formData.role,
-            status: 'Активен',
-            totalTasks: 0,
-            completed: 0,
-            inProgress: 0,
-            productivity: 0,
-            lastActivity: new Date(),
-            skills: formData.skills
-        };
-
-        setPerformers([...performers, newPerformer]);
-        setModalOpen(false);
-
-        if (stats) {
-            setStats({
-                ...stats,
-                totalPerformers: stats.totalPerformers + 1,
-                activeNow: stats.activeNow + 1
+    const handleAddPerformer = async (formData) => {
+        try {
+            const response = await fetch(`${BASE_URL}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify(formData)
             });
+
+            if (!response.ok) throw new Error('Ошибка создания исполнителя');
+
+            await loadData();
+            setModalOpen(false);
+            alert('Исполнитель успешно добавлен');
+        } catch (error) {
+            console.error('Ошибка добавления исполнителя:', error);
+            alert('Ошибка при добавлении исполнителя');
         }
+    };
+
+    const handleEditPerformer = async () => {
+        await loadData();
+        setEditModalOpen(false);
+        alert('Исполнитель успешно обновлен');
+    };
+
+    const openEditModal = (executorId) => {
+        setSelectedExecutorId(executorId);
+        setEditModalOpen(true);
     };
 
     return (
@@ -95,24 +139,20 @@ const ExecutorPage = () => {
                 <h1 className="modalHeader">Исполнители</h1>
             </div>
 
-            {stats && (
-                <div className={styles.statsGrid}>
-                    <StatsCard
-                        title="Всего исполнителей"
-                        value={stats.totalPerformers}
-                        icon="users"
-                        iconColor="#3b82f6"
-                    />
-                    <StatsCard
-                        title="Активных сейчас"
-                        value={stats.activeNow}
-                        icon="activity"
-                        iconColor="#10b981"
-                    />
-
-
-                </div>
-            )}
+            <div className={styles.statsGrid}>
+                <StatsCard
+                    title="Всего исполнителей"
+                    value={stats.totalPerformers}
+                    icon="users"
+                    iconColor="#3b82f6"
+                />
+                <StatsCard
+                    title="Активных сейчас"
+                    value={stats.activeNow}
+                    icon="activity"
+                    iconColor="#10b981"
+                />
+            </div>
 
             <div className={styles.toolbar}>
                 <SearchInput
@@ -131,12 +171,20 @@ const ExecutorPage = () => {
             <PerformersTable
                 performers={filteredPerformers}
                 loading={loading}
+                onEdit={openEditModal}
             />
 
             <AddExecutorModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onSubmit={handleAddPerformer}
+            />
+
+            <EditExecutorModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                onSubmit={handleEditPerformer}
+                executorId={selectedExecutorId}
             />
         </div>
     );

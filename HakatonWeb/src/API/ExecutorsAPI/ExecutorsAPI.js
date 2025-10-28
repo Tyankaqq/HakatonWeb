@@ -1,23 +1,17 @@
 // src/API/UsersAPI/UsersAPI.js
 const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
 
-export async function fetchUsers(status = 1, withTasksCount = 1) {
-    const params = new URLSearchParams({
-        status: status,
-        with_tasks_count: withTasksCount
-    });
-
-    const response = await fetch(`${BASE_URL}/users?${params}`, {
+export async function fetchActiveUsersWorkload() {
+    const response = await fetch(`${BASE_URL}/reports/active-users-workload`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true' // Для ngrok
+            'ngrok-skip-browser-warning': 'true'
         },
     });
 
-    if (!response.ok) throw new Error('Ошибка получения пользователей');
+    if (!response.ok) throw new Error('Ошибка получения данных о загрузке пользователей');
     return response.json();
-
 }
 
 export async function fetchAllUsers() {
@@ -31,4 +25,72 @@ export async function fetchAllUsers() {
 
     if (!response.ok) throw new Error('Ошибка получения пользователей');
     return response.json();
+}
+
+async function createUser(userData) {
+    const response = await fetch(`${BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) throw new Error('Ошибка создания пользователя');
+    return response.json();
+}
+
+// 1. Создать Junior исполнителя (вес 1-3)
+export async function createJuniorExecutor(data) {
+    // Генерируем случайный вес от 1 до 3
+    const weight = Math.floor(Math.random() * 3) + 1;
+
+    const userData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        middle_name: data.middle_name || '',
+        status: data.status !== undefined ? data.status : true,
+        daily_limit: data.daily_limit || 20, // Junior обычно меньше задач
+        weight: weight,
+        parameters: data.parameters || []
+    };
+
+    return createUser(userData);
+}
+
+// 2. Создать Middle исполнителя (вес 4-6)
+export async function createMiddleExecutor(data) {
+    // Генерируем случайный вес от 4 до 6
+    const weight = Math.floor(Math.random() * 3) + 4;
+
+    const userData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        middle_name: data.middle_name || '',
+        status: data.status !== undefined ? data.status : true,
+        daily_limit: data.daily_limit || 40, // Middle больше задач
+        weight: weight,
+        parameters: data.parameters || []
+    };
+
+    return createUser(userData);
+}
+
+// 3. Создать Senior исполнителя (вес 7-10)
+export async function createSeniorExecutor(data) {
+    // Генерируем случайный вес от 7 до 10
+    const weight = Math.floor(Math.random() * 4) + 7;
+
+    const userData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        middle_name: data.middle_name || '',
+        status: data.status !== undefined ? data.status : true,
+        daily_limit: data.daily_limit || 60, // Senior максимум задач
+        weight: weight,
+        parameters: data.parameters || []
+    };
+
+    return createUser(userData);
 }
