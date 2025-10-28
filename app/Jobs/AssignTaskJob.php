@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\TaskAssigned;
 use App\Http\Services\TaskAssignmentService;
 use App\Models\Task;
 use Illuminate\Bus\Queueable;
@@ -70,6 +71,8 @@ class AssignTaskJob implements ShouldQueue
                 'parameters' => $this->taskData['parameters'],
                 'assigned_at' => now(),
             ]);
+
+            event(new TaskAssigned($task));
 
             // Удаляем из Redis после успешной обработки
             Redis::del("task:pending:{$taskId}");
