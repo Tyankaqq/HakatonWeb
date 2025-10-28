@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\TaskAssigned;
 use App\Http\Services\TaskAssignmentService;
 use App\Models\Task;
 use Illuminate\Bus\Queueable;
@@ -10,38 +9,25 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class AssignTaskJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
-    public $timeout = 120;
+    public $tries = 1; // Уменьшили попытки
+    public $timeout = 30; // Уменьшили timeout
 
-    public function __construct(
-        public array $taskData
-    ) {}
+    public function __construct(public array $taskData) {}
 
-    /**
-     * Обработка задачи из Redis:
-     * 1. Берем задачу из Redis
-     * 2. Ищем подходящего исполнителя
-     * 3. ТОЛЬКО после нахождения сохраняем в PostgreSQL
-     */
     public function handle(TaskAssignmentService $assignmentService): void
     {
         $taskId = $this->taskData['task_id'];
 
-        // Отмечаем, что worker начал обработку
-        Redis::setex("task:processing:{$taskId}", 300, now()->toISOString());
-
-        Log::info("Processing task from Redis queue: {$taskId}");
-
         try {
-            // ШАГ 1: Создаем временный объект (НЕ сохраняем в БД)
-            $tempTask = new Task([
+            // БЕЗ transaction
+            $task = new Task([
                 'task_id' => $taskId,
                 'title' => $this->taskData['title'],
                 'priority' => $this->taskData['priority'],
@@ -49,66 +35,24 @@ class AssignTaskJob implements ShouldQueue
                 'parameters' => $this->taskData['parameters'],
             ]);
 
-            Log::info("Looking for suitable executor for task {$taskId}");
+            $assignedUser = $assignmentService->findUserForTask($task);
 
-            // ШАГ 2: Ищем исполнителя
-            $assignedUser = $assignmentService->findUserForTask($tempTask);
-
-            if (!$assignedUser) {
-                Log::warning("No suitable user found for task {$taskId}. Task will be retried.");
-                throw new \Exception("No suitable user available");
-            }
-
-            Log::info("Found executor: User {$assignedUser->id} (weight: {$assignedUser->weight}, open tasks: {$assignedUser->getOpenTasksCount()})");
-
-            // ШАГ 3: ТОЛЬКО ТЕПЕРЬ сохраняем в PostgreSQL
-            $task = Task::create([
+            // Используйте Query Builder вместо Eloquent
+            DB::table('tasks')->insert([
                 'task_id' => $taskId,
                 'title' => $this->taskData['title'],
                 'priority' => $this->taskData['priority'],
                 'weight' => $this->taskData['weight'],
                 'user_id' => $assignedUser->id,
-                'parameters' => $this->taskData['parameters'],
+                'parameters' => json_encode($this->taskData['parameters']),
                 'assigned_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            event(new TaskAssigned($task));
-
-            // Удаляем из Redis после успешной обработки
-            Redis::del("task:pending:{$taskId}");
-            Redis::del("task:processing:{$taskId}");
-
-            Log::info("✓ Task {$taskId} successfully assigned to user {$assignedUser->id} and saved to PostgreSQL");
-
         } catch (\Exception $e) {
-            Redis::del("task:processing:{$taskId}");
-
-            Log::error("✗ Failed to process task: {$taskId} - " . $e->getMessage());
             throw $e;
         }
     }
 
-    /**
-     * Обработка неудачного выполнения
-     */
-    public function failed(\Throwable $exception): void
-    {
-        $taskId = $this->taskData['task_id'];
-
-        // Сохраняем информацию об ошибке в Redis
-        Redis::setex(
-            "task:failed:{$taskId}",
-            86400,
-            json_encode([
-                'task_id' => $taskId,
-                'error' => $exception->getMessage(),
-                'failed_at' => now()->toISOString()
-            ])
-        );
-
-        Redis::del("task:pending:{$taskId}");
-        Redis::del("task:processing:{$taskId}");
-
-        Log::error("Task {$taskId} FAILED after {$this->tries} attempts: " . $exception->getMessage());
-    }
 }

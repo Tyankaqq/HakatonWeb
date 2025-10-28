@@ -24,6 +24,25 @@ class UserController extends Controller
     }
 
     /**
+     * Получить активных пользователей с количеством заявок в работе
+     */
+    public function getActiveUsersWithWorkload(Request $request): JsonResponse
+    {
+        $users = User::all()
+            ->map(function ($user) {
+                return [
+                    'full_name' => trim("{$user->first_name} {$user->last_name} " . ($user->middle_name ?? '')),
+                    'open_tasks_count' => $user->getOpenTasksCount(),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $users
+        ], 200);
+    }
+
+    /**
      * Создать пользователя
      * POST /api/v1/users
      */

@@ -16,6 +16,11 @@ Route::middleware([\App\Http\Middleware\Cors::class])->group(function () {
     Route::patch('users/{user}', [UserController::class, 'update']);
     Route::delete('users/{user}', [UserController::class, 'destroy']);
 
+
+    Route::prefix('reports')->group(function () {
+        Route::get('/active-users-workload', [UserController::class, 'getActiveUsersWithWorkload']);
+    });
+
     // Parameters routes
     Route::get('parameters', [ParameterController::class, 'index']);
     Route::post('parameters', [ParameterController::class, 'store']);
