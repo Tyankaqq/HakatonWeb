@@ -18,16 +18,14 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
     const [errors, setErrors] = useState({});
     const [availableParameters, setAvailableParameters] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [executorLevel, setExecutorLevel] = useState('Junior'); // Уровень исполнителя
+    const [executorLevel, setExecutorLevel] = useState('Junior');
 
-    // Загружаем параметры из API
     useEffect(() => {
         if (isOpen) {
             loadParameters();
         }
     }, [isOpen]);
 
-    // Определяем уровень при изменении веса
     useEffect(() => {
         const weight = formData.weight;
         if (weight >= 1 && weight <= 3) {
@@ -143,7 +141,23 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         e.preventDefault();
 
         if (validateForm()) {
-            onSubmit(formData);
+            // Форматируем данные перед отправкой
+            const formattedData = {
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                middle_name: formData.middle_name || '',
+                status: formData.status,
+                daily_limit: formData.daily_limit,
+                weight: formData.weight,
+                parameters: formData.parameters.map(param => ({
+                    parameter_id: parseInt(param.parameter_id),
+                    value: param.value.toString(),
+                    comparison_operator: param.comparison_operator
+                }))
+            };
+
+            console.log('Отправляемые данные из модалки:', formattedData);
+            onSubmit(formattedData);
         }
     };
 
@@ -172,7 +186,6 @@ const AddExecutorModal = ({ isOpen, onClose, onSubmit }) => {
         }
     };
 
-    // Функция для получения цвета бейджа уровня
     const getLevelBadgeStyle = () => {
         switch (executorLevel) {
             case 'Junior':

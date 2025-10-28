@@ -1,13 +1,12 @@
-// Обновленный ExecutorPage.jsx с EditExecutorModal
+// src/pages/ExecutorPage.jsx
 import React, { useState, useEffect } from 'react';
 import StatsCard from '../components/ExecutorsPage/StatsCard';
 import PerformersTable from '../components/ExecutorsPage/PerformersTable';
 import AddExecutorModal from '../components/ExecutorsPage/AddExecutorModal';
 import EditExecutorModal from '../components/ExecutorsPage/EditExecutorModal';
 import SearchInput from '../components/ExecutorsPage/SearchInput';
+import { fetchAllUsers, createUser } from '../API/ExecutorsAPI/ExecutorsAPI.js';
 import styles from '../css/ExecutorsPage/ExecutorsPage.module.css';
-
-const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
 
 const ExecutorPage = () => {
     const [performers, setPerformers] = useState([]);
@@ -33,28 +32,20 @@ const ExecutorPage = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${BASE_URL}/users`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-            });
+            const response = await fetchAllUsers();
+            console.log('API Response:', response);
 
-            if (!response.ok) throw new Error('Ошибка получения пользователей');
-
-            const data = await response.json();
             let users = [];
-            if (data.success && Array.isArray(data.data)) {
-                users = data.data;
-            } else if (Array.isArray(data)) {
-                users = data;
+            if (response.success && Array.isArray(response.data)) {
+                users = response.data;
+            } else if (Array.isArray(response)) {
+                users = response;
             }
 
             const formattedPerformers = users.map(user => ({
                 id: user.id?.toString(),
-                initials: `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`,
-                name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+                initials: `${user.first_name?.[0] || '?'}${user.last_name?.[0] || '?'}`,
+                name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени',
                 email: user.email || 'N/A',
                 role: 'Исполнитель',
                 status: user.status ? 'Активен' : 'Неактивен',
@@ -64,7 +55,7 @@ const ExecutorPage = () => {
                 productivity: 0,
                 lastActivity: new Date(),
                 skills: [],
-                weight: user.weight || 0  // Добавляем вес
+                weight: user.weight || 0
             }));
 
             setPerformers(formattedPerformers);
@@ -102,23 +93,19 @@ const ExecutorPage = () => {
 
     const handleAddPerformer = async (formData) => {
         try {
-            const response = await fetch(`${BASE_URL}/users`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify(formData)
-            });
+            console.log('Данные для создания:', formData);
 
-            if (!response.ok) throw new Error('Ошибка создания исполнителя');
+            // Используем функцию createUser из API
+            const result = await createUser(formData);
+
+            console.log('Результат создания:', result);
 
             await loadData();
             setModalOpen(false);
             alert('Исполнитель успешно добавлен');
         } catch (error) {
             console.error('Ошибка добавления исполнителя:', error);
-            alert('Ошибка при добавлении исполнителя');
+            alert(`Ошибка при добавлении исполнителя: ${error.message}`);
         }
     };
 

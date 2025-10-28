@@ -1,4 +1,4 @@
-const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
+const BASE_URL = 'https://a1981d0765de.ngrok-free.app/api/v1';
 
 
 export async function fetchParameters() {

@@ -1,5 +1,5 @@
 // src/API/UsersAPI/UsersAPI.js
-const BASE_URL = 'https://a4b0ae7793b5.ngrok-free.app/api/v1';
+const BASE_URL = 'https://a1981d0765de.ngrok-free.app/api/v1';
 
 export async function fetchActiveUsersWorkload() {
     const response = await fetch(`${BASE_URL}/reports/active-users-workload`, {
@@ -27,7 +27,7 @@ export async function fetchAllUsers() {
     return response.json();
 }
 
-async function createUser(userData) {
+export async function createUser(userData) {
     const response = await fetch(`${BASE_URL}/users`, {
         method: 'POST',
         headers: {
@@ -40,6 +40,7 @@ async function createUser(userData) {
     if (!response.ok) throw new Error('Ошибка создания пользователя');
     return response.json();
 }
+
 
 // 1. Создать Junior исполнителя (вес 1-3)
 export async function createJuniorExecutor(data) {
