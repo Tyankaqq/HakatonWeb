@@ -3,6 +3,7 @@ import styles from '../../css/BalancerPage/BalancerPage.module.css';
 
 const StatsCard = ({ title, value, subtitle, icon, iconColor }) => {
     const renderIcon = () => {
+
         const iconProps = {
             width: "20",
             height: "20",

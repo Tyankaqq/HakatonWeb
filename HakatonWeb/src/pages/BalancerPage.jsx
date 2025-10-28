@@ -9,6 +9,13 @@ import styles from '../css/BalancerPage/BalancerPage.module.css';
 const BalancerPage = () => {
     const { stats, assignments, executors, loading } = useBalancer();
 
+    // Расчет эффективности - если есть executor, значит задача успешно распределена
+    const totalTasks = assignments.length;
+    const successfulTasks = assignments.filter(assignment =>
+        assignment.executor !== null && assignment.executor !== undefined
+    ).length;
+    const efficiency = totalTasks > 0 ? Math.round((successfulTasks / totalTasks) * 100) : 0;
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Балансировщик</h1>
@@ -37,19 +44,17 @@ const BalancerPage = () => {
                 />
                 <StatsCard
                     title="Эффективность"
-                    value="98.7%"
-                    subtitle="Успешных распределений"
+                    value={`${efficiency}%`}
+                    subtitle="Успешные распределения"
                     icon="trending"
-                    iconColor="#22c55e"
+                    iconColor="#10B981"
                 />
             </div>
 
             <div className={styles.mainGrid}>
-                <LiveFeed assignments={assignments} loading={loading} />
                 <ExecutorLoad executors={executors} />
+                <AlgorithmInfo />
             </div>
-
-            <AlgorithmInfo />
         </div>
     );
 };
