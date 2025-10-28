@@ -4,22 +4,31 @@ import "../src/css/style.css";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import TasksPage from "./pages/TasksPage.jsx";
 import ExecutorsPage from "./pages/ExecutorsPage.jsx";
-import QueuePage from "./pages/QueuePage.jsx";
 import BalancerPage from "./pages/BalancerPage.jsx";
+import ParametrsPage from "./pages/ParametrsPage.jsx";
+
+
 
 function App() {
+
     return (
+
         <BrowserRouter>
-            <Header />
-            <Routes>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/tasks" element={<TasksPage />} />
-                <Route path="/executors" element={<ExecutorsPage />} />
-                <Route path="/queues" element={<QueuePage />} />
-                <Route path="/balancer" element={<BalancerPage />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-        </BrowserRouter>
+            <div className="app-container">
+                <Header />
+                <div className="app-content">
+                    <Routes>
+                        <Route path="/balancer" element={<BalancerPage />} />
+                        <Route path="/executors" element={<ExecutorsPage />} />
+                        <Route path="/parametrs" element={<ParametrsPage />} />
+                        <Route path="/tasks" element={<TasksPage />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="*" element={<Navigate to="/balancer" replace />} />
+                    </Routes>
+                </div>
+            </div>
+                </BrowserRouter>
+
     );
 }
 

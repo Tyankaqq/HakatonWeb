@@ -1,0 +1,169 @@
+.tableContainer {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.table thead {
+    background-color: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.table th:hover {
+    background-color: #f1f5f9;
+}
+
+.sortIcon {
+    margin-left: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.75rem;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table td {
+    padding: 1rem;
+}
+
+.performerCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.performerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.performerName {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.performerEmail {
+    font-size: 0.8125rem;
+    color: #64748b;
+}
+
+.statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.statusLabel {
+    color: #475569;
+    font-size: 0.875rem;
+}
+
+.numberCell {
+    font-weight: 500;
+    color: #475569;
+}
+
+.withIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.progressCell {
+    min-width: 200px;
+}
+
+.progressBarContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progressBar {
+    flex: 1;
+    height: 8px;
+    background-color: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.progressLabel {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+    min-width: 35px;
+    text-align: right;
+}
+
+.timeCell {
+    color: #64748b;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.loading, .empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+}
+
+@media screen and (max-width: 1024px) {
+    .tableContainer {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 1200px;
+    }
+}

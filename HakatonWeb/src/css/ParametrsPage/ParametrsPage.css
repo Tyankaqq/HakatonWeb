@@ -1,0 +1,211 @@
+.parameters-page {
+    max-width: 1720px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    background: #f8f8fa;
+}
+
+.stats-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+.stats-card {
+    flex: 1;
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 1px 3px #ededed;
+}
+.stats-label {
+    color: #aaa;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+.stats-value {
+    font-weight: 600;
+    font-size: 22px;
+    color: #333;
+}
+
+.top-actions-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.search-input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #fff;
+}
+.filter-select {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #ededed;
+    background: #fff;
+    font-size: 15px;
+}
+.create-button {
+    background: #030213;
+    color: #fff;
+    border-radius: 8px;
+    border: none;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.create-button:hover {
+    background: #444;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 6px #ededed;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #f3f3f3;
+}
+.description{
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #f3f3f3;
+    color : #717182;
+}
+th {
+    background: #f3f5fc;
+    font-weight: 500;
+    color: #484848;
+}
+.mini-tag-id{
+    display: inline-block;
+    background: #f3f5fc;
+    color: #333;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: Consolas, monaco, monospace;
+    font-weight: 500;
+    padding: 2px 10px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+.mini-tag-inactive{
+    display: inline-block;
+    background: #f3f5fc;
+    color: #717182;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 2px 10px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+.mini-tag {
+    display: inline-block;
+    background: #f3f5fc;
+    color: #333;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 2px 10px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+
+.status-active {
+    color: #219653;
+    background: #eafbe7;
+
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+}
+.status-inactive {
+    color: #a82c2c;
+    background: #fdeaea;
+
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.bottom-blocks {
+    display: flex;
+    gap: 48px;
+    margin-top: 18px;
+}
+.bottom-label {
+    font-weight: 500;
+    margin-bottom: 24px;
+    color: #444;
+}
+.bottom-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    cursor: default;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(50,50,50,0.19);
+    z-index: 1111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-window {
+    background: #fff;
+    border-radius: 13px;
+    padding: 30px 28px;
+    box-shadow: 0 4px 28px #338cf215;
+    min-width: 340px;
+    max-width: 95vw;
+}
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+.modal-form input,
+.modal-form select {
+    font-size: 16px;
+    border-radius: 7px;
+    border: 1px solid #ececec;
+    padding: 9px 13px;
+}
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+.cancel-btn {
+    background: #e8e8e8;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
