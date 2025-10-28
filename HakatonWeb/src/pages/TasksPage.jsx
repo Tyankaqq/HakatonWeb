@@ -100,11 +100,7 @@ const TasksPage = () => {
                 loading={loading}
             />
 
-            <CreateTaskModal
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onSubmit={handleCreateTask}
-            />
+
         </div>
     );
 };
