@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../../css/components/StatsCard.module.css';
+import ClockLogo from '../../assets/Image/ClockLogo.svg';
 
 const StatsCard = ({ title, value, icon, iconColor }) => {
     const renderIcon = () => {
@@ -47,6 +48,13 @@ const StatsCard = ({ title, value, icon, iconColor }) => {
                     <svg {...iconProps}>
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                         <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                );
+            case 'tasks':
+                return (
+                    <svg {...iconProps}>
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="9 12 11 14 15 10"/>
                     </svg>
                 );
             default:

@@ -47,18 +47,22 @@ const ExecutorPage = () => {
             console.log('=== EXECUTOR PAGE API Response ===', response);
 
             let users = [];
+            // Обрабатываем разные структуры ответа
             if (response.success && Array.isArray(response.data)) {
                 users = response.data;
             } else if (Array.isArray(response)) {
                 users = response;
+            } else if (response.data && Array.isArray(response.data)) {
+                users = response.data;
             }
 
             console.log('Parsed users:', users);
 
             const formattedPerformers = users.map(user => {
-                const taskCount = user.count || 0; // ✅ Используем поле count
+                // Пробуем разные варианты поля с количеством задач
+                const taskCount = user.tasks_count || user.taskCount || user.task_count || 0;
 
-                console.log(`User ${user.id} (${user.first_name} ${user.last_name}): count = ${taskCount}`);
+                console.log(`User ${user.id}: tasks_count = ${taskCount}`, user);
 
                 return {
                     id: user.id?.toString(),
@@ -67,7 +71,7 @@ const ExecutorPage = () => {
                     email: user.email || 'N/A',
                     role: 'Исполнитель',
                     status: user.status ? 'Активен' : 'Неактивен',
-                    totalTasks: taskCount, // ✅ Берем из count
+                    totalTasks: taskCount,
                     completed: 0,
                     inProgress: taskCount,
                     productivity: 0,
@@ -82,17 +86,17 @@ const ExecutorPage = () => {
 
             // Подсчет статистики
             const activeCount = users.filter(u => u.status).length;
-            const totalTasksCount = users.reduce((sum, user) => sum + (user.count || 0), 0); // ✅ Суммируем count
+            const totalTasksCount = formattedPerformers.reduce((sum, performer) => sum + performer.totalTasks, 0);
 
             console.log('=== STATS ===');
             console.log('Total performers:', users.length);
             console.log('Active:', activeCount);
-            console.log('Total tasks (sum of count):', totalTasksCount);
+            console.log('Total tasks:', totalTasksCount);
 
             setStats({
                 totalPerformers: users.length,
                 activeNow: activeCount,
-                totalTasks: totalTasksCount // ✅ Общее количество задач
+                totalTasks: totalTasksCount
             });
 
             setLoading(false);
