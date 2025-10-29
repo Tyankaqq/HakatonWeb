@@ -8,64 +8,87 @@ use Illuminate\Support\Facades\DB;
 
 class TaskAssignmentService
 {
-    // Кеш пользователей на уровне процесса
-    private static $cachedUsers = null;
-    private static $cacheTime = null;
-
     public function findUserForTask(Task $task): ?User
     {
-        // Находим подходящих пользователей
-        $matches = $this->findSuitableUsers($task);
+        $matchesByParameters = $this->findUsersByParameters($task);
 
-        if ($matches->isNotEmpty()) {
-            // Выбираем с минимальным count
-            return $matches->sortBy('count')->first();
+        if ($matchesByParameters->isEmpty()) {
+            return User::where('status', true)
+                ->orderBy('count', 'asc')
+                ->first() ?? User::orderBy('count', 'asc')->first();
         }
 
-        // Fallback: любой активный с минимальным count
-        return User::where('status', true)
-            ->orderBy('count', 'asc')
-            ->first() ?? User::orderBy('count', 'asc')->first();
+        $matchesByWeight = $this->filterByWeightRange($matchesByParameters, $task);
+
+        if ($matchesByWeight->isNotEmpty()) {
+            return $matchesByWeight->sortBy('count')->first();
+        }
+
+        return null;
     }
 
-    private function findSuitableUsers(Task $task)
+    private function filterByWeightRange($users, Task $task)
     {
-        $now = time();
+        $taskWeight = $task->weight;
 
-        // Кеширование на 10 секунд
-        if (self::$cachedUsers === null || (self::$cacheTime + 10) < $now) {
-            self::$cachedUsers = User::where('status', true)
-                ->with(['parameters' => function ($query) {
-                    $query->select('parameters.id', 'user_id', 'parameter_id', 'value');
-                }])
-                ->select('id', 'weight', 'count', 'status')
-                ->get();
-            self::$cacheTime = $now;
+        // Определяем диапазон задачи
+        if ($taskWeight >= 0 && $taskWeight <= 3) {
+            $minWeight = 0;
+            $maxWeight = 3;
+        } elseif ($taskWeight >= 4 && $taskWeight <= 6) {
+            $minWeight = 4;
+            $maxWeight = 6;
+        } else { // 7-10
+            $minWeight = 7;
+            $maxWeight = 10;
         }
 
-        $users = self::$cachedUsers;
+        // Фильтруем пользователей по диапазону
+        return $users->filter(function ($user) use ($minWeight, $maxWeight) {
+            return $user->weight >= $minWeight && $user->weight <= $maxWeight;
+        });
+    }
+
+    private function selectBestCandidate($candidates, Task $task)
+    {
+        $taskWeight = $task->weight;
+
+        return $candidates
+            ->map(function ($user) use ($taskWeight) {
+                $user->weight_distance = abs($user->weight - $taskWeight);
+                return $user;
+            })
+            ->sortBy([
+                ['weight_distance', 'asc'],
+                ['count', 'asc'],
+                ['id', 'asc'],
+            ])
+            ->first();
+    }
+
+    private function findUsersByParameters(Task $task)
+    {
+        $users = User::where('status', true)
+            ->with(['parameters' => function ($query) {
+                $query->select('parameters.id', 'user_id', 'parameter_id', 'value');
+            }])
+            ->select('id', 'weight', 'count', 'status')
+            ->get();
 
         return $users->filter(function ($user) use ($task) {
-            // Проверка веса
-            $requiredWeight = (int) ceil($task->weight * 0.6);
-            if ($user->weight < $requiredWeight) {
-                return false;
-            }
-
-            // Проверка параметров
             $taskParameters = $task->parameters;
+
             if (empty($taskParameters)) {
-                return true; // Нет параметров = подходит
+                return true;
             }
 
             $userParameters = $user->parameters->keyBy('parameter_id');
 
-            // Все параметры должны совпадать
             foreach ($taskParameters as $taskParam) {
                 $parameterId = $taskParam['parameter_id'];
 
                 if (!$userParameters->has($parameterId)) {
-                    return false; // Нет параметра = не подходит
+                    return false;
                 }
 
                 $userParam = $userParameters->get($parameterId);
@@ -74,11 +97,11 @@ class TaskAssignmentService
                 $operator = $taskParam['comparison_operator'] ?? '=';
 
                 if (!$this->compareValues($userValue, $requiredValue, $operator)) {
-                    return false; // Параметр не совпадает = не подходит
+                    return false;
                 }
             }
 
-            return true; // Все параметры совпали + вес подходит
+            return true;
         });
     }
 
@@ -103,21 +126,17 @@ class TaskAssignmentService
             return null;
         }
 
-        DB::transaction(function () use ($task, $user) {
-            DB::table('tasks')
-                ->where('id', $task->id)
-                ->update([
-                    'user_id' => $user->id,
-                    'assigned_at' => now(),
-                    'updated_at' => now(),
-                ]);
+        DB::table('tasks')
+            ->where('id', $task->id)
+            ->update([
+                'user_id' => $user->id,
+                'assigned_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            DB::table('users')
-                ->where('id', $user->id)
-                ->increment('count');
-        });
-
-        self::$cachedUsers = null;
+        DB::table('users')
+            ->where('id', $user->id)
+            ->increment('count');
 
         return $user;
     }
@@ -137,8 +156,6 @@ class TaskAssignmentService
                 'assigned_at' => null,
                 'updated_at' => now(),
             ]);
-
-        self::$cachedUsers = null;
 
         return $this->assignTaskToUser($task);
     }

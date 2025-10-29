@@ -46,7 +46,7 @@ class TaskService
             'priority' => ['nullable', Rule::in(['low', 'medium', 'high'])],
             'weight' => 'nullable|integer|min:1|max:10',
             'parameters' => 'required|array',
-            'parameters.*.parameter_id' => 'required|exists:parameters,id',
+            'parameters.*.parameter_id' => 'required',
             'parameters.*.value' => 'required',
             'parameters.*.comparison_operator' => ['nullable', Rule::in(['>', '<', '>=', '<=', '=', '!='])],
         ]);
@@ -72,17 +72,14 @@ class TaskService
             'created_at' => now()->toISOString(),
         ];
 
-        // Сохраняем метаданные задачи в Redis для отслеживания
         Redis::setex(
             "task:pending:{$taskId}",
-            3600, // TTL 1 час
+            3600,
             json_encode($taskData)
         );
 
-        // Увеличиваем счетчик задач в очереди
         Redis::incr('tasks:queue:count');
 
-        // Отправляем в Redis очередь
         AssignTaskJob::dispatch($taskData)
             ->onQueue('task-assignment');
 
@@ -102,7 +99,6 @@ class TaskService
      */
     public function getTaskByTaskId(string $taskId): JsonResponse
     {
-        // Сначала проверяем в PostgreSQL
         $task = Task::where('task_id', $taskId)->first();
 
         if ($task) {
@@ -115,7 +111,6 @@ class TaskService
             ], 200);
         }
 
-        // Проверяем, обрабатывается ли задача
         $processing = Redis::get("task:processing:{$taskId}");
         if ($processing) {
             return response()->json([
@@ -129,7 +124,6 @@ class TaskService
             ], 200);
         }
 
-        // Проверяем, в очереди ли задача
         $pending = Redis::get("task:pending:{$taskId}");
         if ($pending) {
             return response()->json([
@@ -140,7 +134,6 @@ class TaskService
             ], 200);
         }
 
-        // Проверяем, упала ли задача
         $failed = Redis::get("task:failed:{$taskId}");
         if ($failed) {
             return response()->json([

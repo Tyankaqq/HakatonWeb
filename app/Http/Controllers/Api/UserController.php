@@ -16,7 +16,6 @@ class UserController extends Controller
 
     /**
      * Получить список пользователей
-     * GET /api/v1/users
      */
     public function index(Request $request): JsonResponse
     {
@@ -44,7 +43,6 @@ class UserController extends Controller
 
     /**
      * Создать пользователя
-     * POST /api/v1/users
      */
     public function store(Request $request): JsonResponse
     {
@@ -53,7 +51,6 @@ class UserController extends Controller
 
     /**
      * Получить конкретного пользователя
-     * GET /api/v1/users/{user}
      */
     public function show(User $user): JsonResponse
     {
@@ -62,7 +59,6 @@ class UserController extends Controller
 
     /**
      * Обновить пользователя
-     * PUT/PATCH /api/v1/users/{user}
      */
     public function update(Request $request, User $user): JsonResponse
     {
@@ -71,7 +67,6 @@ class UserController extends Controller
 
     /**
      * Удалить пользователя
-     * DELETE /api/v1/users/{user}
      */
     public function destroy(User $user): JsonResponse
     {
@@ -80,7 +75,6 @@ class UserController extends Controller
 
     /**
      * Получить статистику пользователя
-     * GET /api/v1/users/{user}/stats
      */
     public function stats(User $user): JsonResponse
     {

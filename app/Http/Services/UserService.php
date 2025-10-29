@@ -23,7 +23,6 @@ class UserService
             ->with('parameters')
             ->select('id', 'first_name', 'last_name', 'middle_name', 'count', 'status', 'weight');
 
-        // Фильтрация по статусу
         if ($status !== null) {
             $query->where('status', (bool) $status);
         }
@@ -81,10 +80,8 @@ class UserService
             $parameters = $userData['parameters'] ?? [];
             unset($userData['parameters']);
 
-            // Создаем пользователя
             $user = User::create($userData);
 
-            // Прикрепляем параметры
             if (!empty($parameters)) {
                 $this->syncParameters($user, $parameters);
             }
@@ -117,7 +114,6 @@ class UserService
     {
         $user->load('parameters');
 
-        // Добавляем статистику
         $user->open_tasks_count = $user->getOpenTasksCount();
         $user->today_tasks_count = $user->getTodayTasksCount();
 
@@ -159,14 +155,11 @@ class UserService
             $parameters = $userData['parameters'] ?? null;
             unset($userData['parameters']);
 
-            // Обновляем основные данные пользователя
             if (!empty($userData)) {
                 $user->update($userData);
             }
 
-            // Обновляем параметры (если переданы)
             if ($parameters !== null) {
-                // Полная синхронизация - удаляем старые, добавляем новые
                 $this->syncParameters($user, $parameters);
             }
 
@@ -250,7 +243,6 @@ class UserService
             ];
         }
 
-        // sync() автоматически удалит старые и добавит новые связи
         $user->parameters()->sync($syncData);
     }
 }

@@ -16,7 +16,6 @@ class ParameterController extends Controller
 
     /**
      * Получить список параметров
-     * GET /api/v1/parameters
      */
     public function index(Request $request): JsonResponse
     {
@@ -25,7 +24,6 @@ class ParameterController extends Controller
 
     /**
      * Создать параметр
-     * POST /api/v1/parameters
      */
     public function store(Request $request): JsonResponse
     {
@@ -34,7 +32,6 @@ class ParameterController extends Controller
 
     /**
      * Получить конкретный параметр
-     * GET /api/v1/parameters/{parameter}
      */
     public function show(Parameter $parameter): JsonResponse
     {
@@ -43,7 +40,6 @@ class ParameterController extends Controller
 
     /**
      * Обновить параметр
-     * PUT/PATCH /api/v1/parameters/{parameter}
      */
     public function update(Request $request, Parameter $parameter): JsonResponse
     {
@@ -52,7 +48,6 @@ class ParameterController extends Controller
 
     /**
      * Удалить параметр
-     * DELETE /api/v1/parameters/{parameter}
      */
     public function destroy(Parameter $parameter): JsonResponse
     {

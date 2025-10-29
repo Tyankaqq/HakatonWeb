@@ -15,7 +15,6 @@ class TaskController extends Controller
 
     /**
      * Получить список задач
-     * GET /api/v1/tasks
      */
     public function index(Request $request): JsonResponse
     {
@@ -24,7 +23,6 @@ class TaskController extends Controller
 
     /**
      * Создать задачу и отправить в очередь
-     * POST /api/v1/tasks
      */
     public function store(Request $request): JsonResponse
     {
@@ -33,7 +31,6 @@ class TaskController extends Controller
 
     /**
      * Получить задачу по task_id
-     * GET /api/v1/tasks/{taskId}
      */
     public function show(string $taskId): JsonResponse
     {
@@ -42,7 +39,6 @@ class TaskController extends Controller
 
     /**
      * Перераспределить задачу
-     * POST /api/v1/tasks/{taskId}/reassign
      */
     public function reassign(string $taskId): JsonResponse
     {
@@ -51,7 +47,6 @@ class TaskController extends Controller
 
     /**
      * Получить статистику очереди
-     * GET /api/v1/tasks/queue/stats
      */
     public function queueStats(): JsonResponse
     {

@@ -139,7 +139,6 @@ class ParameterService
      */
     public function delete(Parameter $parameter): JsonResponse
     {
-        // Проверка: есть ли пользователи с этим параметром
         $usersCount = $parameter->users()->count();
 
         if ($usersCount > 0) {

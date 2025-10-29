@@ -26,7 +26,6 @@ class ProcessTaskDistributionJob implements ShouldQueue
 
     public function handle(): void
     {
-        // ШАГ 1: Читаем из Redis
         $taskJson = Redis::get("task:{$this->taskId}:data");
 
         if (!$taskJson) {
@@ -36,14 +35,12 @@ class ProcessTaskDistributionJob implements ShouldQueue
         $taskData = json_decode($taskJson, true);
         $parameters = $taskData['parameters'];
 
-        // ШАГ 2: Блокировка
         $lockKey = "task:lock:{$this->taskId}";
         if (!Redis::set($lockKey, 1, 'EX', 60, 'NX')) {
             return;
         }
 
         try {
-            // ШАГ 3: Находим исполнителя (с актуальными данными из БД)
             $executor = $this->findBestExecutor($parameters);
 
             if (!$executor) {
@@ -54,21 +51,18 @@ class ProcessTaskDistributionJob implements ShouldQueue
                 return;
             }
 
-            // ШАГ 4: Назначаем → записываем в Postgres
             DB::beginTransaction();
 
             $task = Task::create([
-                'parameters' => $parameters, // ← Сохраняем в БД
+                'parameters' => $parameters,
                 'assigned_user_id' => $executor->id
             ]);
 
-            // Обновляем счетчики
             Redis::incr("executor:{$executor->id}:current_tasks");
             Redis::incr('tasks:processed:total');
 
             DB::commit();
 
-            // ШАГ 5: Удаляем из Redis
             Redis::lrem('tasks:pending', 1, $this->taskId);
             Redis::del("task:{$this->taskId}:data");
 
@@ -88,10 +82,8 @@ class ProcessTaskDistributionJob implements ShouldQueue
      */
     private function findBestExecutor(array $parameters): ?User
     {
-        // ПРАВИЛО 1: Только активные
         $query = User::where('status', 'active');
 
-        // ПРАВИЛО 4: Соответствие параметрам
         foreach ($parameters as $key => $value) {
             if (in_array($key, ['region', 'category', 'priority'])) {
                 $query->whereHas('flags', function ($q) use ($key, $value) {
@@ -107,7 +99,6 @@ class ProcessTaskDistributionJob implements ShouldQueue
             return null;
         }
 
-        // ПРАВИЛО 2: Наименьшая нагрузка
         $bestExecutor = null;
         $minLoad = PHP_INT_MAX;
 
