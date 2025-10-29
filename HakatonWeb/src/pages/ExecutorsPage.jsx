@@ -14,7 +14,8 @@ const ExecutorPage = () => {
     const [filteredPerformers, setFilteredPerformers] = useState([]);
     const [stats, setStats] = useState({
         totalPerformers: 0,
-        activeNow: 0
+        activeNow: 0,
+        totalTasks: 0
     });
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
@@ -43,7 +44,7 @@ const ExecutorPage = () => {
         setLoading(true);
         try {
             const response = await fetchAllUsers();
-            console.log('API Response:', response);
+            console.log('=== EXECUTOR PAGE API Response ===', response);
 
             let users = [];
             if (response.success && Array.isArray(response.data)) {
@@ -52,29 +53,46 @@ const ExecutorPage = () => {
                 users = response;
             }
 
-            const formattedPerformers = users.map(user => ({
-                id: user.id?.toString(),
-                initials: `${user.first_name?.[0] || '?'}${user.last_name?.[0] || '?'}`,
-                name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени',
-                email: user.email || 'N/A',
-                role: 'Исполнитель',
-                status: user.status ? 'Активен' : 'Неактивен',
-                totalTasks: user.tasks_count || 0,
-                completed: 0,
-                inProgress: user.tasks_count || 0,
-                productivity: 0,
-                lastActivity: new Date(),
-                skills: [],
-                weight: user.weight || 0
-            }));
+            console.log('Parsed users:', users);
+
+            const formattedPerformers = users.map(user => {
+                const taskCount = user.count || 0; // ✅ Используем поле count
+
+                console.log(`User ${user.id} (${user.first_name} ${user.last_name}): count = ${taskCount}`);
+
+                return {
+                    id: user.id?.toString(),
+                    initials: `${user.first_name?.[0] || '?'}${user.last_name?.[0] || '?'}`,
+                    name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Без имени',
+                    email: user.email || 'N/A',
+                    role: 'Исполнитель',
+                    status: user.status ? 'Активен' : 'Неактивен',
+                    totalTasks: taskCount, // ✅ Берем из count
+                    completed: 0,
+                    inProgress: taskCount,
+                    productivity: 0,
+                    lastActivity: new Date(),
+                    skills: [],
+                    weight: user.weight || 0
+                };
+            });
 
             setPerformers(formattedPerformers);
             setFilteredPerformers(formattedPerformers);
 
+            // Подсчет статистики
             const activeCount = users.filter(u => u.status).length;
+            const totalTasksCount = users.reduce((sum, user) => sum + (user.count || 0), 0); // ✅ Суммируем count
+
+            console.log('=== STATS ===');
+            console.log('Total performers:', users.length);
+            console.log('Active:', activeCount);
+            console.log('Total tasks (sum of count):', totalTasksCount);
+
             setStats({
                 totalPerformers: users.length,
-                activeNow: activeCount
+                activeNow: activeCount,
+                totalTasks: totalTasksCount // ✅ Общее количество задач
             });
 
             setLoading(false);
@@ -125,7 +143,6 @@ const ExecutorPage = () => {
     };
 
     const handleDeletePerformer = async (executorId, executorName) => {
-        // Подтверждение удаления
         const confirmed = window.confirm(
             `Вы уверены, что хотите удалить исполнителя "${executorName}"?\n\nЭто действие нельзя отменить.`
         );
@@ -177,6 +194,12 @@ const ExecutorPage = () => {
                     value={stats.activeNow}
                     icon="activity"
                     iconColor="#10b981"
+                />
+                <StatsCard
+                    title="Всего задач"
+                    value={stats.totalTasks}
+                    icon="tasks"
+                    iconColor="#f59e0b"
                 />
             </div>
 

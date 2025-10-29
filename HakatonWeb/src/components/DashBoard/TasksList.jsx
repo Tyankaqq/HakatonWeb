@@ -80,23 +80,31 @@ const TasksList = ({ title, tasks }) => {
                 <h3 className="card-title">{title}</h3>
             </div>
             <div className="tasks-list">
-                {tasks.map((task, index) => (
-                    <div key={index} className="task-item">
-                        <div className="task-info">
-                            <div className="task-header">
-                                <span className="task-id">{task.id}</span>
-                                <span className={`task-badge ${getPriorityClass(task.priority)}`}>
+                {tasks.length === 0 ? (
+                    <div>
+                        Пока что ничего нет.
+                    </div>
+                ) : (
+                    <>
+                        {tasks.map((task, index) => (
+                            <div key={index} className="task-item">
+                                <div className="task-info">
+                                    <div className="task-header">
+                                        <span className="task-id">{task.id}</span>
+                                        <span className={`task-badge ${getPriorityClass(task.priority)}`}>
                                     {getPriorityLabel(task.priority)}
                                 </span>
+                                    </div>
+                                    <div className="task-title">{task.title}</div>
+                                    <div className="task-assignee">{task.assignee}</div>
+                                </div>
+                                <div className={`task-icon ${getIconClass(task.status)}`}>
+                                    {getStatusIcon(task.status)}
+                                </div>
                             </div>
-                            <div className="task-title">{task.title}</div>
-                            <div className="task-assignee">{task.assignee}</div>
-                        </div>
-                        <div className={`task-icon ${getIconClass(task.status)}`}>
-                            {getStatusIcon(task.status)}
-                        </div>
-                    </div>
-                ))}
+                        ))}
+                    </>
+                )}
             </div>
         </div>
     );

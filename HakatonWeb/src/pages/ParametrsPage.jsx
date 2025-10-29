@@ -244,9 +244,6 @@ function ParametrsPage() {
                                 <option value="boolean">boolean</option>
                                 <option value="array">array</option>
                                 <option value="date">date</option>
-                                <option value="datetime">datetime</option>
-                                <option value="timestamp">timestamp</option>
-                                <option value="json">json</option>
                             </select>
 
                             <select

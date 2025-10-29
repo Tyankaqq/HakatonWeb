@@ -6,25 +6,16 @@ import LineChart from '../components/Dashboard/LineChart';
 import TasksList from '../components/Dashboard/TasksList';
 import Toast from '../components/Toast';
 import { fetchAllUsers, fetchActiveUsersWorkload } from '../API/ExecutorsAPI/ExecutorsAPI.js';
+import { fetchTasks } from '../API/TasksAPI/TasksAPI.js';
 import '../css/DashBoard/DashBoardPage.css';
 
 const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
-    const [statsData, setStatsData] = useState([
-        { title: 'Всего задач', value: '0', changeType: 'positive', subtitle: 'за последнюю неделю', icon: 'tasks', color: '#3b82f6' },
-        { title: 'Активных исполнителей', value: '0', changeType: 'positive', subtitle: 'за последнюю неделю', icon: 'users', color: '#10b981' },
-        { title: 'Средняя загрузка', value: '0 мс', changeType: 'positive', subtitle: 'время на задачу', icon: 'check', color: '#22c55e' }
-    ]);
+    const [statsData, setStatsData] = useState([]);
     const [barData, setBarData] = useState([]);
+    const [lineChartData, setLineChartData] = useState([]); // ✅ Данные для линейного графика
+    const [tasksData, setTasksData] = useState([]);
     const [toast, setToast] = useState(null);
-
-    const tasksData = [
-        { id: 'TSK-4721', title: 'Обработка заказов из CRM', assignee: 'Иванов А.П.', priority: 'high', status: 'pending' },
-        { id: 'TSK-4720', title: 'Синхронизация каталога товаров', assignee: 'Петрова М.С.', priority: 'medium', status: 'completed' },
-        { id: 'TSK-4719', title: 'Экспорт отчётов Excel', assignee: 'Сидоров К.В.', priority: 'low', status: 'pending' },
-        { id: 'TSK-4718', title: 'Интеграция с платежной системой', assignee: 'Козлова Н.И.', priority: 'high', status: 'waiting' },
-        { id: 'TSK-4717', title: 'Обновление данных через REST API', assignee: 'Морозов Д.А.', priority: 'medium', status: 'completed' }
-    ];
 
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
@@ -49,95 +40,172 @@ const DashboardPage = () => {
         try {
             setLoading(true);
 
-            const [usersResponse, workloadResponse] = await Promise.all([
+            // Параллельная загрузка всех данных
+            const [usersResponse, workloadResponse, tasksResponse] = await Promise.allSettled([
                 fetchAllUsers(),
-                fetchActiveUsersWorkload()
+                fetchActiveUsersWorkload(),
+                fetchTasks()
             ]);
 
-            console.log('=== RAW API RESPONSES ===');
-            console.log('Users Response:', usersResponse);
-            console.log('Workload Response:', workloadResponse);
+            console.log('=== API RESPONSES ===');
+            console.log('Users:', usersResponse);
+            console.log('Workload:', workloadResponse);
+            console.log('Tasks:', tasksResponse);
 
+            // Обработка пользователей
             let users = [];
-            if (usersResponse.success && Array.isArray(usersResponse.data)) {
-                users = usersResponse.data;
-            } else if (Array.isArray(usersResponse)) {
-                users = usersResponse;
+            if (usersResponse.status === 'fulfilled') {
+                const data = usersResponse.value;
+                if (data.success && Array.isArray(data.data)) {
+                    users = data.data;
+                } else if (Array.isArray(data)) {
+                    users = data;
+                }
             }
 
+            // Создаем карту пользователей по ID для быстрого поиска
+            const usersById = new Map();
+            users.forEach(user => {
+                usersById.set(user.id, user);
+            });
+
+            console.log('Users map created:', usersById.size, 'users');
+
+            // Обработка workload
             let workload = [];
-            if (workloadResponse.success && Array.isArray(workloadResponse.data)) {
-                workload = workloadResponse.data;
+            if (workloadResponse.status === 'fulfilled') {
+                const data = workloadResponse.value;
+                if (data.success && Array.isArray(data.data)) {
+                    workload = data.data;
+                } else if (Array.isArray(data)) {
+                    workload = data;
+                }
             }
 
-            console.log('=== PROCESSED DATA ===');
-            console.log('Users array:', users);
-            console.log('Workload array:', workload);
+            // Обработка задач
+            let tasks = [];
+            if (tasksResponse.status === 'fulfilled') {
+                const data = tasksResponse.value;
+                console.log('Tasks raw data:', data);
 
-            // Улучшенное сопоставление - убираем все лишние пробелы и приводим к нижнему регистру
+                // Пробуем разные варианты структуры ответа
+                if (data.success && Array.isArray(data.data)) {
+                    tasks = data.data;
+                } else if (Array.isArray(data.data?.tasks)) {
+                    tasks = data.data.tasks;
+                } else if (Array.isArray(data.tasks)) {
+                    tasks = data.tasks;
+                } else if (Array.isArray(data)) {
+                    tasks = data;
+                }
+
+                console.log('Parsed tasks:', tasks);
+            } else {
+                console.log('Tasks request failed:', tasksResponse.reason);
+            }
+
+            // Fallback на демо-данные если задач нет
+            if (tasks.length === 0) {
+                console.log('⚠️ Используем демо-данные для задач');
+
+            }
+
+            // Форматируем задачи с поиском исполнителя по user_id
+            const formattedTasks = tasks.slice(0, 5).map(task => {
+                let assigneeName = 'Не назначен';
+
+                // Пробуем найти пользователя по разным полям
+                const userId = task.user_id || task.assigned_to || task.assignee_id;
+
+                if (userId) {
+                    const user = usersById.get(userId);
+                    if (user) {
+                        // Формируем ФИО
+                        const parts = [
+                            user.first_name || '',
+                            user.last_name || '',
+                            user.middle_name || ''
+                        ].filter(part => part.trim() !== '');
+
+                        assigneeName = parts.join(' ').trim() || 'Пользователь';
+                        console.log(`Task ${task.task_id}: user_id=${userId} -> ${assigneeName}`);
+                    } else {
+                        console.log(`Task ${task.task_id}: user_id=${userId} not found in users map`);
+                        assigneeName = `ID: ${userId}`;
+                    }
+                }
+
+                const executionTime = task.execution_time_ms !== null && task.execution_time_ms !== undefined
+                    ? task.execution_time_ms
+                    : 0;
+
+                return {
+                    id: task.task_id || task.id || 'N/A',
+                    title: task.title || 'Без названия',
+                    assignee: assigneeName,
+                    priority: task.priority || 'medium',
+                    status: 'completed',
+                    executionTime: `${executionTime}` // ✅ Время выполнения задачи
+                };
+            });
+
+            console.log('Formatted tasks:', formattedTasks);
+            setTasksData(formattedTasks);
+
+            // Формируем данные для линейного графика (время выполнения последних задач)
+            const lineData = formattedTasks.map((task, index) => ({
+                label: `${index + 1}`, // Номер задачи
+                value: parseInt(task.executionTime) || 0 // Время выполнения в мс
+            }));
+
+            console.log('Line chart data:', lineData);
+            setLineChartData(lineData);
+
+            // Создаем карту пользователей по полному имени
             const userMap = new Map();
             users.forEach(user => {
-                // Собираем полное ФИО с отчеством
                 const parts = [
                     user.first_name || '',
                     user.last_name || '',
                     user.middle_name || ''
-                ].filter(part => part.trim() !== ''); // Убираем пустые части
+                ].filter(part => part.trim() !== '');
 
                 const fullName = parts.join(' ').trim().replace(/\s+/g, ' ').toLowerCase();
                 userMap.set(fullName, user);
-                console.log(`User mapped: "${fullName}" -> weight: ${user.weight}, level: ${getLevel(user.weight)}`);
             });
 
+            // Группируем задачи по уровням
             let juniorTasks = 0;
             let middleTasks = 0;
             let seniorTasks = 0;
 
-            console.log('=== PROCESSING WORKLOAD ===');
             workload.forEach(worker => {
                 const fullName = (worker.full_name || '').trim().replace(/\s+/g, ' ').toLowerCase();
                 const taskCount = worker.open_tasks_count || 0;
                 const user = userMap.get(fullName);
 
-                console.log(`Worker: "${fullName}" (${taskCount} tasks)`);
-
                 if (user) {
-                    const weight = user.weight || 0;
-                    const level = getLevel(weight);
-                    console.log(`  -> Found user with weight ${weight} (${level})`);
-
+                    const level = getLevel(user.weight || 0);
                     switch (level) {
                         case 'Junior':
                             juniorTasks += taskCount;
-                            console.log(`  -> Added to Junior: ${taskCount} (total: ${juniorTasks})`);
                             break;
                         case 'Middle':
                             middleTasks += taskCount;
-                            console.log(`  -> Added to Middle: ${taskCount} (total: ${middleTasks})`);
                             break;
                         case 'Senior':
                             seniorTasks += taskCount;
-                            console.log(`  -> Added to Senior: ${taskCount} (total: ${seniorTasks})`);
                             break;
                     }
                 } else {
-                    console.log(`  -> User NOT FOUND! Adding to Junior by default`);
-                    console.log(`  -> Available users:`, Array.from(userMap.keys()));
                     juniorTasks += taskCount;
                 }
             });
 
-            console.log('=== FINAL RESULTS ===');
-            console.log('Junior tasks:', juniorTasks);
-            console.log('Middle tasks:', middleTasks);
-            console.log('Senior tasks:', seniorTasks);
-
+            // Статистика
             const totalUsers = users.length;
             const activeUsers = users.filter(u => u.status === true || u.status === 1).length;
             const totalTasks = juniorTasks + middleTasks + seniorTasks;
-
-            const avgTasksPerExecutor = activeUsers > 0 ? totalTasks / activeUsers : 0;
-            const avgProcessingTimeMs = Math.round(avgTasksPerExecutor * 20);
 
             setStatsData([
                 {
@@ -157,42 +225,40 @@ const DashboardPage = () => {
                     color: '#10b981'
                 },
                 {
-                    title: 'Средняя загрузка',
-                    value: `${avgProcessingTimeMs} мс`,
+                    title: 'Средняя загрузка задачи',
+                    value: `${formattedTasks[0]?.executionTime ?? "0"} мс`,
                     changeType: 'positive',
-                    subtitle: 'на исполнителя',
+                    subtitle: 'время выполнения',
                     icon: 'check',
                     color: '#22c55e'
                 }
             ]);
 
+            // График
             const maxTasks = Math.max(juniorTasks, middleTasks, seniorTasks, 1);
-
             const formattedBarData = [
                 {
                     label: 'Junior',
                     value: juniorTasks,
-                    height: `${Math.round((juniorTasks / maxTasks) * 100)}%`
+                    height: `${Math.round((juniorTasks / maxTasks) * 80)}%`
                 },
                 {
                     label: 'Middle',
                     value: middleTasks,
-                    height: `${Math.round((middleTasks / maxTasks) * 100)}%`
+                    height: `${Math.round((middleTasks / maxTasks) * 80)}%`
                 },
                 {
                     label: 'Senior',
                     value: seniorTasks,
-                    height: `${Math.round((seniorTasks / maxTasks) * 100)}%`
+                    height: `${Math.round((seniorTasks / maxTasks) * 80)}%`
                 }
             ];
 
-            console.log('=== BAR CHART DATA ===');
-            console.log('formattedBarData:', formattedBarData);
-
             setBarData(formattedBarData);
             setLoading(false);
+
         } catch (error) {
-            console.error('Ошибка загрузки данных дашборда:', error);
+            console.error('Ошибка загрузки данных:', error);
             showToast('Ошибка загрузки данных', 'error');
             setLoading(false);
         }
@@ -232,7 +298,10 @@ const DashboardPage = () => {
                     title="Распределение задач по уровням"
                     data={barData}
                 />
-                <LineChart title="Загрузка системы" />
+                <LineChart
+                    title="Загрузка системы"
+                    data={lineChartData} // ✅ Передаем данные о времени выполнения
+                />
             </div>
 
             <div className="bottom-grid">

@@ -2,6 +2,7 @@ import React from 'react';
 import '../../css/DashBoard/BarChart.css';
 
 const BarChart = ({ title, data }) => {
+
     return (
         <div className="chart-card">
             <div className="chart-header">
@@ -13,7 +14,19 @@ const BarChart = ({ title, data }) => {
             <div className="bar-chart">
                 {data.map((item, index) => (
                     <div key={index} className="bar-wrapper">
-                        <div className="bar" style={{ height: item.height }}></div>
+                        <span
+                            className="bar-value"
+                            style={{ animationDelay: `${index * 0.1 + 0.5}s` }}
+                        >
+                            {item.value}
+                        </span>
+                        <div
+                            className="bar"
+                            style={{
+                                height: item.height,
+                                animationDelay: `${index * 0.1}s`
+                            }}
+                        ></div>
                         <span className="bar-label">{item.label}</span>
                     </div>
                 ))}
