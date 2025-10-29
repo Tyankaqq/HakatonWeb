@@ -105,7 +105,36 @@ class TaskAssignmentService
         });
     }
 
+    /**
+     * Сравнивает значения. Распознает даты и сравнивает их корректно.
+     * Безопасно обрабатывает любые возможные ошибки.
+     */
     private function compareValues($userValue, $requiredValue, string $operator): bool
+    {
+        $userTimestamp = is_string($userValue) ? strtotime($userValue) : false;
+        $requiredTimestamp = is_string($requiredValue) ? strtotime($requiredValue) : false;
+
+        if ($userTimestamp !== false && $requiredTimestamp !== false) {
+            try {
+                $userDate = new \DateTime('@' . $userTimestamp);
+                $requiredDate = new \DateTime('@' . $requiredTimestamp);
+
+                switch ($operator) {
+                    case '=': return $userDate == $requiredDate;
+                    case '!=': return $userDate != $requiredDate;
+                    case '>': return $userDate > $requiredDate;
+                    case '<': return $userDate < $requiredDate;
+                    case '>=': return $userDate >= $requiredDate;
+                    case '<=': return $userDate <= $requiredDate;
+                    default: return false;
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        return $this->simpleCompare($userValue, $requiredValue, $operator);
+    }
+    private function simpleCompare($userValue, $requiredValue, string $operator): bool
     {
         switch ($operator) {
             case '=': return $userValue == $requiredValue;
